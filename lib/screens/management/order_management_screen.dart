@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../models/order.dart';
+import 'package:spa_admin/models/pending_orders_model.dart';
+import 'package:spa_admin/screens/management/cubit/order_management_cubit.dart';
+import 'package:spa_admin/utils/tokien_utils.dart';
 import '../../utils/routes.dart';
+
+enum OrderStatus { pending, booked, inProgress, completed, cancelled }
 
 class OrderManagementScreen extends StatefulWidget {
   const OrderManagementScreen({super.key});
@@ -15,75 +20,6 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
   late TabController _tabController;
   String _searchQuery = '';
 
-  // Mock data
-  final List<Order> _allOrders = [
-    Order(
-      id: '001',
-      userId: 'user001',
-      userName: 'Sarah Johnson',
-      userPhone: '+62812345678',
-      serviceName: 'Full Body Massage',
-      bookingDate: DateTime.now().add(const Duration(days: 1)),
-      createdAt: DateTime.now(),
-      status: OrderStatus.pending,
-      totalAmount: 350000,
-      notes: 'First time customer',
-      services: ['Full Body Massage', 'Aromatherapy'],
-    ),
-    Order(
-      id: '002',
-      userId: 'user002',
-      userName: 'Maria Silva',
-      userPhone: '+62823456789',
-      serviceName: 'Facial Treatment',
-      bookingDate: DateTime.now().add(const Duration(days: 2)),
-      createdAt: DateTime.now(),
-      status: OrderStatus.booked,
-      totalAmount: 250000,
-      notes: 'Sensitive skin',
-      services: ['Facial Treatment', 'Face Mask'],
-    ),
-    Order(
-      id: '003',
-      userId: 'user003',
-      userName: 'Jessica Brown',
-      userPhone: '+62834567890',
-      serviceName: 'Hot Stone Therapy',
-      bookingDate: DateTime.now().subtract(const Duration(days: 1)),
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      status: OrderStatus.completed,
-      totalAmount: 450000,
-      notes: 'Regular customer',
-      services: ['Hot Stone Therapy', 'Body Scrub'],
-    ),
-    Order(
-      id: '004',
-      userId: 'user004',
-      userName: 'Emma Wilson',
-      userPhone: '+62845678901',
-      serviceName: 'Couple Massage',
-      bookingDate: DateTime.now().add(const Duration(days: 3)),
-      createdAt: DateTime.now(),
-      status: OrderStatus.pending,
-      totalAmount: 600000,
-      notes: 'Anniversary celebration',
-      services: ['Couple Massage', 'Romantic Package'],
-    ),
-    Order(
-      id: '005',
-      userId: 'user005',
-      userName: 'Lisa Anderson',
-      userPhone: '+62856789012',
-      serviceName: 'Manicure Pedicure',
-      bookingDate: DateTime.now(),
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      status: OrderStatus.inProgress,
-      totalAmount: 150000,
-      notes: 'Gel polish requested',
-      services: ['Manicure', 'Pedicure', 'Gel Polish'],
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -96,35 +32,15 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
     super.dispose();
   }
 
-  List<Order> _getFilteredOrders(OrderStatus? status) {
-    List<Order> filteredOrders = _allOrders;
-
-    if (status != null) {
-      filteredOrders = _allOrders
-          .where((order) => order.status == status)
-          .toList();
-    }
-
-    if (_searchQuery.isNotEmpty) {
-      filteredOrders = filteredOrders
-          .where(
-            (order) =>
-                order.userName.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ||
-                order.serviceName.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ||
-                order.userPhone.contains(_searchQuery),
-          )
-          .toList();
-    }
-
-    return filteredOrders;
-  }
-
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => OrderManagementCubit()..initial(),
+      child: Builder(builder: (context) => _build(context)),
+    );
+  }
+
+  Widget _build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -149,50 +65,97 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
           ],
         ),
       ),
-      body: Column(
-        children: [
-          // Search Bar
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-              decoration: InputDecoration(
-                hintText: 'Search orders...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.grey.shade100,
+      body: BlocConsumer<OrderManagementCubit, OrderManagementState>(
+        listener: (context, state) {
+          state.maybeWhen(
+            unauthorized: () async {
+              // Handle unauthorized state, e.g., navigate to login
+              await TokenUtils.deleteAllTokens();
+              if (mounted) {
+                context.go(AppRoutes.login);
+              }
+            },
+            error: (message) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(message)));
+            },
+            orElse: () {},
+          );
+        },
+        builder: (context, state) {
+          return state.maybeWhen(
+            orElse: () => Container(),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            loaded: (data) => _loaded(context, data),
+            error: (message) => Center(
+              child: Text(
+                message,
+                style: const TextStyle(fontSize: 16, color: Colors.red),
               ),
             ),
-          ),
-
-          // Orders List
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildOrdersList(_getFilteredOrders(null)),
-                _buildOrdersList(_getFilteredOrders(OrderStatus.pending)),
-                _buildOrdersList(_getFilteredOrders(OrderStatus.booked)),
-                _buildOrdersList(_getFilteredOrders(OrderStatus.inProgress)),
-                _buildOrdersList(_getFilteredOrders(OrderStatus.completed)),
-              ],
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildOrdersList(List<Order> orders) {
+  Widget _loaded(BuildContext context, PendingOrdersModel data) {
+    return Column(
+      children: [
+        // Search Bar
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16),
+          child: TextField(
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+            },
+            decoration: InputDecoration(
+              hintText: 'Search orders...',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade100,
+            ),
+          ),
+        ),
+
+        // Orders List
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildOrdersList(data.data),
+              _buildOrdersList(
+                data.data.where((order) => order.status == 'pending').toList(),
+              ),
+              _buildOrdersList(
+                data.data.where((order) => order.status == 'booked').toList(),
+              ),
+              _buildOrdersList(
+                data.data
+                    .where((order) => order.status == 'in_progress')
+                    .toList(),
+              ),
+              _buildOrdersList(
+                data.data
+                    .where((order) => order.status == 'completed')
+                    .toList(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOrdersList(List<Datum> orders) {
     if (orders.isEmpty) {
       return const Center(
         child: Column(
@@ -226,7 +189,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
     );
   }
 
-  Widget _buildOrderCard(Order order) {
+  Widget _buildOrderCard(Datum order) {
     Color statusColor = _getStatusColor(order.status);
 
     return Card(
@@ -265,7 +228,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
                       border: Border.all(color: statusColor.withOpacity(0.3)),
                     ),
                     child: Text(
-                      order.statusText,
+                      order.status,
                       style: TextStyle(
                         color: statusColor,
                         fontSize: 12,
@@ -291,14 +254,14 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          order.userName,
+                          order.user.name,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         Text(
-                          order.userPhone,
+                          order.user.phone,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade600,
@@ -322,20 +285,13 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      order.serviceName,
+                      order.spaService.name,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Services: ${order.services.join(', ')}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
                     if (order.notes.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
@@ -367,7 +323,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
                         ),
                       ),
                       Text(
-                        _formatDate(order.bookingDate),
+                        _formatDate(order.createdAt),
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -386,7 +342,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
                         ),
                       ),
                       Text(
-                        'Rp ${_formatCurrency(order.totalAmount)}',
+                        'Rp ${_formatCurrency(double.parse(order.spaService.price))}',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -404,18 +360,20 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
     );
   }
 
-  Color _getStatusColor(OrderStatus status) {
+  Color _getStatusColor(String status) {
     switch (status) {
-      case OrderStatus.pending:
+      case 'pending':
         return Colors.orange;
-      case OrderStatus.booked:
+      case 'booked':
         return Colors.blue;
-      case OrderStatus.inProgress:
+      case 'in_progress':
         return Colors.purple;
-      case OrderStatus.completed:
+      case 'completed':
         return Colors.green;
-      case OrderStatus.cancelled:
+      case 'cancelled':
         return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 

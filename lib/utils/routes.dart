@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 // Screens
 import '../screens/auth/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
-import '../screens/auth/register_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/home/profile_screen.dart';
 import '../screens/management/order_management_screen.dart';
@@ -17,7 +16,6 @@ import '../screens/home/account_info_screen.dart';
 class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
-  static const String register = '/register';
   static const String home = '/home';
   static const String profile = '/profile';
   static const String orderManagement = '/order-management';
@@ -41,11 +39,6 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.login,
       name: 'login',
       builder: (context, state) => const LoginScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.register,
-      name: 'register',
-      builder: (context, state) => const RegisterScreen(),
     ),
     GoRoute(
       path: AppRoutes.home,

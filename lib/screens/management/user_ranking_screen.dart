@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spa_admin/models/users_points_model.dart';
+import 'package:spa_admin/screens/management/cubit/user_rank_cubit.dart';
+import 'package:spa_admin/utils/tokien_utils.dart';
 import '../../models/user.dart';
 import '../../utils/routes.dart';
 
@@ -11,85 +15,15 @@ class UserRankingScreen extends StatefulWidget {
 }
 
 class _UserRankingScreenState extends State<UserRankingScreen> {
-  String _selectedPeriod = 'all_time'; // all_time, this_month, this_year
-
-  // Mock data for user rankings
-  final List<User> _allUsers = [
-    User(
-      id: 'user005',
-      name: 'Lisa Anderson',
-      email: 'lisa.anderson@email.com',
-      phone: '+62856789012',
-      createdAt: DateTime.now().subtract(const Duration(days: 90)),
-      rewardPoints: 3200,
-      isActive: true,
-      profileImage: '',
-    ),
-    User(
-      id: 'user003',
-      name: 'Jessica Brown',
-      email: 'jessica.brown@email.com',
-      phone: '+62834567890',
-      createdAt: DateTime.now().subtract(const Duration(days: 60)),
-      rewardPoints: 2150,
-      isActive: true,
-      profileImage: '',
-    ),
-    User(
-      id: 'user001',
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@email.com',
-      phone: '+62812345678',
-      createdAt: DateTime.now().subtract(const Duration(days: 30)),
-      rewardPoints: 1250,
-      isActive: true,
-      profileImage: '',
-    ),
-    User(
-      id: 'user002',
-      name: 'Maria Silva',
-      email: 'maria.silva@email.com',
-      phone: '+62823456789',
-      createdAt: DateTime.now().subtract(const Duration(days: 45)),
-      rewardPoints: 890,
-      isActive: true,
-      profileImage: '',
-    ),
-    User(
-      id: 'user004',
-      name: 'Emma Wilson',
-      email: 'emma.wilson@email.com',
-      phone: '+62845678901',
-      createdAt: DateTime.now().subtract(const Duration(days: 15)),
-      rewardPoints: 450,
-      isActive: false,
-      profileImage: '',
-    ),
-    User(
-      id: 'user006',
-      name: 'Anna Davis',
-      email: 'anna.davis@email.com',
-      phone: '+62867890123',
-      createdAt: DateTime.now().subtract(const Duration(days: 10)),
-      rewardPoints: 120,
-      isActive: true,
-      profileImage: '',
-    ),
-  ];
-
-  List<User> _getRankedUsers() {
-    List<User> users = List.from(_allUsers);
-
-    // Sort by reward points in descending order
-    users.sort((a, b) => b.rewardPoints.compareTo(a.rewardPoints));
-
-    return users;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final rankedUsers = _getRankedUsers();
+    return BlocProvider(
+      create: (context) => UserRankCubit()..initial(),
+      child: Builder(builder: (context) => _build(context)),
+    );
+  }
 
+  Widget _build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -99,116 +33,136 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
           'User Ranking',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.filter_list),
-            onSelected: (String value) {
-              setState(() {
-                _selectedPeriod = value;
-              });
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(value: 'all_time', child: Text('All Time')),
-              const PopupMenuItem(
-                value: 'this_month',
-                child: Text('This Month'),
-              ),
-              const PopupMenuItem(value: 'this_year', child: Text('This Year')),
-            ],
-          ),
-        ],
       ),
-      body: Column(
-        children: [
-          // Period Selector and Stats
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Period Info
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.blue.shade800, Colors.blue.shade600],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        _getPeriodTitle(),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Top performers by reward points',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white.withOpacity(0.8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Top 3 Stats
-                if (rankedUsers.isNotEmpty) _buildTopThreeStats(rankedUsers),
-              ],
+      body: BlocConsumer<UserRankCubit, UserRankState>(
+        listener: (context, state) {
+          state.maybeWhen(
+            unauthorized: () async {
+              await TokenUtils.deleteAllTokens();
+              // Handle unauthorized state, e.g., navigate to login
+              context.go(AppRoutes.login);
+            },
+            error: (message) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(message)));
+            },
+            orElse: () {},
+          );
+        },
+        builder: (context, state) {
+          return state.maybeWhen(
+            orElse: () => Container(),
+            loading: () {
+              return const Center(child: CircularProgressIndicator());
+            },
+            loaded: (data) {
+              return _loaded(context, data);
+            },
+            error: (message) => Center(
+              child: Text(
+                'Error: $message',
+                style: const TextStyle(color: Colors.red),
+              ),
             ),
-          ),
-
-          // Rankings List
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                await Future.delayed(const Duration(seconds: 1));
-                setState(() {});
-              },
-              child: rankedUsers.isEmpty
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.leaderboard_outlined,
-                            size: 64,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'No rankings available',
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: rankedUsers.length,
-                      itemBuilder: (context, index) {
-                        final user = rankedUsers[index];
-                        final rank = index + 1;
-                        return _buildRankingCard(user, rank);
-                      },
-                    ),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildTopThreeStats(List<User> users) {
+  Widget _loaded(BuildContext context, UsersPointsModel data) {
+    return Column(
+      children: [
+        // Period Selector and Stats
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Period Info
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.blue.shade800, Colors.blue.shade600],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'User Rankings',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Top performers by reward points',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Top 3 Stats
+              if (data.data.isNotEmpty)
+                _buildTopThreeStats(data.data.take(3).toList()),
+            ],
+          ),
+        ),
+
+        // Rankings List
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await Future.delayed(const Duration(seconds: 1));
+              setState(() {});
+            },
+            child: data.data.isEmpty
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.leaderboard_outlined,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'No rankings available',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: data.data.length,
+                    itemBuilder: (context, index) {
+                      final user = data.data[index];
+                      final rank = index + 1;
+                      return _buildRankingCard(user, rank);
+                    },
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTopThreeStats(List<Datum> users) {
     return Row(
       children: [
         // 2nd Place
@@ -230,7 +184,7 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
     );
   }
 
-  Widget _buildPodiumCard(User user, int rank, Color color) {
+  Widget _buildPodiumCard(Datum user, int rank, Color color) {
     IconData medalIcon;
     switch (rank) {
       case 1:
@@ -258,7 +212,7 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
           Icon(medalIcon, color: color, size: rank == 1 ? 32 : 28),
           const SizedBox(height: 8),
           Text(
-            user.name.split(' ').first,
+            user.user.name.split(' ').first,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
@@ -270,7 +224,7 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            '${user.rewardPoints} pts',
+            '${user.points} pts',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -282,7 +236,7 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
     );
   }
 
-  Widget _buildRankingCard(User user, int rank) {
+  Widget _buildRankingCard(Datum user, int rank) {
     Color rankColor;
     IconData rankIcon;
 
@@ -373,7 +327,7 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      user.name,
+                      user.user.name,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -381,7 +335,7 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      user.email,
+                      user.user.email,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -396,28 +350,20 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: user.isActive
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.red.withOpacity(0.1),
+                            color: Colors.green.withOpacity(0.1),
+
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: Text(
-                            user.isActive ? 'Active' : 'Inactive',
+                          child: const Text(
+                            'active',
                             style: TextStyle(
-                              color: user.isActive ? Colors.green : Colors.red,
+                              color: Colors.green,
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          'Member since ${_formatDate(user.createdAt)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
                       ],
                     ),
                   ],
@@ -448,7 +394,7 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${user.rewardPoints}',
+                          '${user.points}',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -470,18 +416,6 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
         ),
       ),
     );
-  }
-
-  String _getPeriodTitle() {
-    switch (_selectedPeriod) {
-      case 'this_month':
-        return 'This Month Rankings';
-      case 'this_year':
-        return 'This Year Rankings';
-      case 'all_time':
-      default:
-        return 'All Time Rankings';
-    }
   }
 
   String _formatDate(DateTime date) {

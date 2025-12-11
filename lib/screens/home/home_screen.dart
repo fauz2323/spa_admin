@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spa_admin/models/dashboard_model.dart';
+import 'package:spa_admin/models/pending_orders_model.dart';
+import 'package:spa_admin/screens/home/cubit/home_cubit.dart';
+import 'package:spa_admin/utils/tokien_utils.dart';
 import '../../utils/routes.dart';
 import '../../models/dashboard_stats.dart';
 import '../../models/order.dart';
@@ -13,46 +18,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // Mock data
-  final DashboardStats stats = DashboardStats(
-    totalUsers: 1245,
-    dailyOrders: 23,
-    pendingOrders: 8,
-    completedOrders: 157,
-    totalRevenue: 125000.0,
-    todayRevenue: 3450.0,
-  );
-
-  final List<Order> pendingOrders = [
-    Order(
-      id: '001',
-      userId: 'user001',
-      userName: 'Sarah Johnson',
-      userPhone: '+62812345678',
-      serviceName: 'Full Body Massage',
-      bookingDate: DateTime.now().add(const Duration(days: 1)),
-      createdAt: DateTime.now(),
-      status: OrderStatus.pending,
-      totalAmount: 350000,
-      notes: 'First time customer',
-      services: ['Full Body Massage', 'Aromatherapy'],
-    ),
-    Order(
-      id: '002',
-      userId: 'user002',
-      userName: 'Maria Silva',
-      userPhone: '+62823456789',
-      serviceName: 'Facial Treatment',
-      bookingDate: DateTime.now().add(const Duration(days: 2)),
-      createdAt: DateTime.now(),
-      status: OrderStatus.pending,
-      totalAmount: 250000,
-      notes: 'Sensitive skin',
-      services: ['Facial Treatment', 'Face Mask'],
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => HomeCubit()..initial(),
+      child: Builder(builder: (context) => _build(context)),
+    );
+  }
+
+  Widget _build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
@@ -73,139 +48,168 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       drawer: _buildDrawer(context),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          // Simulate refresh
-          await Future.delayed(const Duration(seconds: 1));
+      body: BlocConsumer<HomeCubit, HomeState>(
+        listener: (context, state) {
+          state.maybeWhen(
+            orElse: () {},
+            unauthorized: () async {
+              await TokenUtils.deleteAllTokens();
+              if (mounted) context.go(AppRoutes.login);
+            },
+          );
         },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        builder: (context, state) {
+          return state.maybeWhen(
+            orElse: () => Container(),
+            loading: () {
+              return const Center(child: CircularProgressIndicator());
+            },
+            loaded: (data, pendingOrders) {
+              return _loaded(context, data, pendingOrders);
+            },
+            error: (message) => Center(
+              child: Text(
+                'Error: $message',
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _loaded(
+    BuildContext context,
+    DashboardModel data,
+    PendingOrdersModel pendingOrders,
+  ) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Welcome message
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1976D2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome Back, Admin!',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Here\'s what\'s happening at your spa today',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Statistics Cards
+          GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 1.2,
             children: [
-              // Welcome message
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1976D2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome Back, Admin!',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Here\'s what\'s happening at your spa today',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
+              _buildStatCard(
+                'Total Users',
+                data.data.totalCustomers.toString(),
+                Icons.people,
+                Colors.green,
               ),
-              const SizedBox(height: 24),
-
-              // Statistics Cards
-              GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                childAspectRatio: 1.2,
-                children: [
-                  _buildStatCard(
-                    'Total Users',
-                    stats.totalUsers.toString(),
-                    Icons.people,
-                    Colors.green,
-                  ),
-                  _buildStatCard(
-                    'Daily Orders',
-                    stats.dailyOrders.toString(),
-                    Icons.shopping_cart,
-                    Colors.orange,
-                  ),
-                  _buildStatCard(
-                    'Pending Orders',
-                    stats.pendingOrders.toString(),
-                    Icons.pending_actions,
-                    Colors.red,
-                  ),
-                  _buildStatCard(
-                    'Completed Orders',
-                    stats.completedOrders.toString(),
-                    Icons.check_circle,
-                    Colors.blue,
-                  ),
-                ],
+              _buildStatCard(
+                'Daily Orders',
+                data.data.dailyServices.toString(),
+                Icons.shopping_cart,
+                Colors.orange,
               ),
-              const SizedBox(height: 24),
-
-              // Revenue Cards
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildRevenueCard(
-                      'Today Revenue',
-                      'Rp ${_formatCurrency(stats.todayRevenue)}',
-                      Colors.purple,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildRevenueCard(
-                      'Total Revenue',
-                      'Rp ${_formatCurrency(stats.totalRevenue)}',
-                      Colors.teal,
-                    ),
-                  ),
-                ],
+              _buildStatCard(
+                'Pending Orders',
+                data.data.pendingServices.toString(),
+                Icons.pending_actions,
+                Colors.red,
               ),
-              const SizedBox(height: 24),
-
-              // Pending Orders Section
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Pending Orders',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      context.push(AppRoutes.orderManagement);
-                    },
-                    child: const Text('View All'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Pending Orders List
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: pendingOrders.length,
-                itemBuilder: (context, index) {
-                  final order = pendingOrders[index];
-                  return _buildOrderCard(order);
-                },
+              _buildStatCard(
+                'Completed Orders',
+                data.data.completedServices.toString(),
+                Icons.check_circle,
+                Colors.blue,
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 24),
+
+          // Revenue Cards
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: _buildRevenueCard(
+          //         'Today Revenue',
+          //         'Rp ${_formatCurrency(stats.todayRevenue)}',
+          //         Colors.purple,
+          //       ),
+          //     ),
+          //     const SizedBox(width: 16),
+          //     Expanded(
+          //       child: _buildRevenueCard(
+          //         'Total Revenue',
+          //         'Rp ${_formatCurrency(stats.totalRevenue)}',
+          //         Colors.teal,
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // const SizedBox(height: 24),
+
+          // Pending Orders Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Pending Orders',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              TextButton(
+                onPressed: () {
+                  context.push(AppRoutes.orderManagement);
+                },
+                child: const Text('View All'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Pending Orders List
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: pendingOrders.data.length,
+            itemBuilder: (context, index) {
+              final order = pendingOrders.data[index];
+              return _buildOrderCard(order);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -367,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildOrderCard(Order order) {
+  Widget _buildOrderCard(Datum order) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -377,15 +381,15 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Icon(Icons.spa, color: Colors.orange.shade700),
         ),
         title: Text(
-          order.userName,
+          order.user.name,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(order.serviceName),
+            Text(order.spaService.name),
             Text(
-              'Rp ${_formatCurrency(order.totalAmount)}',
+              'Rp ${_formatCurrency(double.parse(order.spaService.price))}',
               style: TextStyle(
                 color: Colors.green.shade600,
                 fontWeight: FontWeight.w500,
@@ -395,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         trailing: Chip(
           label: Text(
-            order.statusText,
+            order.status,
             style: const TextStyle(fontSize: 12, color: Colors.white),
           ),
           backgroundColor: Colors.orange,
