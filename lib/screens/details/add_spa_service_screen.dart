@@ -60,8 +60,6 @@ class _AddSpaServiceScreenState extends State<AddSpaServiceScreen> {
               _imageUrlController.text = data.data.service.image;
               _pointsController.text = data.data.service.points.toString();
               _isActive = data.data.service.isActive;
-
-              setState(() {});
             },
             success: () {
               ScaffoldMessenger.of(context).showSnackBar(

@@ -34,4 +34,30 @@ class OrderDetailCubit extends Cubit<OrderDetailState> {
       emit(OrderDetailState.error(e.toString()));
     }
   }
+
+  changeStatus(String id, String status) async {
+    emit(const OrderDetailState.loading());
+    try {
+      final changeStatus = await OrderManagementNetwork().changeStatus(
+        token,
+        id,
+        status,
+      );
+
+      changeStatus.fold(
+        (l) {
+          if (l.statusCode == 401) {
+            emit(const OrderDetailState.unauthorized());
+          } else {
+            emit(OrderDetailState.error(l.message));
+          }
+        },
+        (r) {
+          initial(id);
+        },
+      );
+    } catch (e) {
+      emit(OrderDetailState.error(e.toString()));
+    }
+  }
 }

@@ -18,7 +18,7 @@ class OrderManagementScreen extends StatefulWidget {
 class _OrderManagementScreenState extends State<OrderManagementScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String _searchQuery = '';
+  final String _searchQuery = '';
 
   @override
   void initState() {
@@ -104,46 +104,29 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
     return Column(
       children: [
         // Search Bar
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.all(16),
-          child: TextField(
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value;
-              });
-            },
-            decoration: InputDecoration(
-              hintText: 'Search orders...',
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.grey.shade100,
-            ),
-          ),
-        ),
 
         // Orders List
         Expanded(
           child: TabBarView(
             controller: _tabController,
             children: [
-              _buildOrdersList(data.data),
+              _buildOrdersList(context, data.data),
               _buildOrdersList(
+                context,
                 data.data.where((order) => order.status == 'pending').toList(),
               ),
               _buildOrdersList(
+                context,
                 data.data.where((order) => order.status == 'booked').toList(),
               ),
               _buildOrdersList(
+                context,
                 data.data
                     .where((order) => order.status == 'in_progress')
                     .toList(),
               ),
               _buildOrdersList(
+                context,
                 data.data
                     .where((order) => order.status == 'completed')
                     .toList(),
@@ -155,7 +138,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
     );
   }
 
-  Widget _buildOrdersList(List<Datum> orders) {
+  Widget _buildOrdersList(BuildContext context, List<Datum> orders) {
     if (orders.isEmpty) {
       return const Center(
         child: Column(
@@ -174,9 +157,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
 
     return RefreshIndicator(
       onRefresh: () async {
-        // Simulate refresh
-        await Future.delayed(const Duration(seconds: 1));
-        setState(() {});
+        context.read<OrderManagementCubit>().initial();
       },
       child: ListView.builder(
         padding: const EdgeInsets.all(16),

@@ -150,7 +150,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: null,
+                      onPressed: data.data.status == 'pending'
+                          ? () {
+                              context.read<OrderDetailCubit>().changeStatus(
+                                data.data.id.toString(),
+                                'confirmed',
+                              );
+                            }
+                          : null,
                       icon: const Icon(Icons.check_circle),
                       label: const Text('Confirm Booking'),
                       style: ElevatedButton.styleFrom(
@@ -372,7 +379,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: null,
+                        onPressed: data.data.status == 'confirmed'
+                            ? () {
+                                context.read<OrderDetailCubit>().changeStatus(
+                                  data.data.id.toString(),
+                                  'in_progress',
+                                );
+                              }
+                            : null,
                         icon: const Icon(Icons.play_arrow),
                         label: const Text('Start Service'),
                         style: ElevatedButton.styleFrom(
@@ -387,7 +401,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: null,
+                      onPressed: data.data.status == 'in_progress'
+                          ? () {
+                              context.read<OrderDetailCubit>().changeStatus(
+                                data.data.id.toString(),
+                                'completed',
+                              );
+                            }
+                          : null,
                       icon: const Icon(Icons.check_circle),
                       label: const Text('Complete Service'),
                       style: ElevatedButton.styleFrom(
@@ -401,7 +422,16 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: null,
+                      onPressed:
+                          data.data.status == 'pending' ||
+                              data.data.status == 'confirmed'
+                          ? () {
+                              context.read<OrderDetailCubit>().changeStatus(
+                                data.data.id.toString(),
+                                'cancelled',
+                              );
+                            }
+                          : null,
                       icon: const Icon(Icons.cancel),
                       label: const Text('Cancel Order'),
                       style: OutlinedButton.styleFrom(
