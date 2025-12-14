@@ -1,16 +1,18 @@
-import 'package:dartz/dartz.dart';
-import 'package:spa_admin/models/network_model.dart';
-import 'package:spa_admin/models/user_detail_model.dart';
-import 'package:spa_admin/models/users_list_model.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:spa_admin/models/users_points_model.dart';
+import 'package:dartz/dartz.dart';
+import 'package:spa_admin/dto/create_service_dto.dart';
+import 'package:spa_admin/models/create_service_model.dart';
+import 'package:spa_admin/models/network_model.dart';
+import 'package:spa_admin/models/service_model.dart';
+import 'package:http/http.dart' as http;
 
-class UsersManagementNetwork {
-  Future<Either<NetworkModel, UsersListModel>> usersList(String token) async {
+class ServiceManagementNetwork {
+  Future<Either<NetworkModel, SpaServiceModel>> getSpaService(
+    String token,
+  ) async {
     final response = await http.get(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/users'),
+      Uri.parse('https://rumah.nurfauzan.site/api/admin/spa-services'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
@@ -23,22 +25,25 @@ class UsersManagementNetwork {
     final jsonData = jsonDecode(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final usersListModel = UsersListModel.fromJson(jsonData);
-      return Right(usersListModel);
+      final spaServiceModel = SpaServiceModel.fromJson(jsonData);
+      return Right(spaServiceModel);
     }
     return Left(
       NetworkModel(
         statusCode: response.statusCode,
-        message: jsonData['message'] ?? 'Failed to fetch users list',
+        message: jsonData['message'] ?? 'Failed to fetch spa services list',
       ),
     );
   }
 
-  Future<Either<NetworkModel, UsersPointsModel>> usersPoints(
+  Future<Either<NetworkModel, NetworkModel>> deleteSpaService(
     String token,
+    String id,
   ) async {
-    final response = await http.get(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/users/points'),
+    final response = await http.delete(
+      Uri.parse(
+        'https://rumah.nurfauzan.site/api/admin/spa-services/$id/delete',
+      ),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
@@ -51,28 +56,29 @@ class UsersManagementNetwork {
     final jsonData = jsonDecode(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final usersPointsModel = UsersPointsModel.fromJson(jsonData);
-      return Right(usersPointsModel);
+      final spaServiceModel = NetworkModel(
+        statusCode: 200,
+        message: 'success Delete',
+      );
+      return Right(spaServiceModel);
     }
     return Left(
       NetworkModel(
         statusCode: response.statusCode,
-        message: jsonData['message'] ?? 'Failed to fetch users points',
+        message: jsonData['message'] ?? 'Failed to fetch spa services list',
       ),
     );
   }
 
-  Future<Either<NetworkModel, UserDetailModel>> userDetail(
+  Future<Either<NetworkModel, CreateServiceModel>> create(
     String token,
-    String email,
+    CreateServiceDto data,
   ) async {
-    Map<String, String> body = {'email': email};
-
     final response = await http.post(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/users/detail'),
-      body: body,
+      Uri.parse('https://rumah.nurfauzan.site/api/admin/spa-services/create'),
+      body: jsonEncode(data.toJson()),
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
         'accept': 'application/json',
         'Authorization': 'Bearer $token',
       },
@@ -83,13 +89,13 @@ class UsersManagementNetwork {
     final jsonData = jsonDecode(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final userDetailModel = UserDetailModel.fromJson(jsonData);
-      return Right(userDetailModel);
+      final createData = CreateServiceModel.fromJson(jsonData);
+      return Right(createData);
     }
     return Left(
       NetworkModel(
         statusCode: response.statusCode,
-        message: jsonData['message'] ?? 'Failed to fetch user details',
+        message: jsonData['message'] ?? 'Failed to fetch spa services list',
       ),
     );
   }

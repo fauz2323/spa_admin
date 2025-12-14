@@ -1,4 +1,6 @@
 import 'package:go_router/go_router.dart';
+import 'package:spa_admin/screens/details/add_spa_service_screen.dart';
+import 'package:spa_admin/screens/management/service_management_screen.dart';
 
 // Screens
 import '../screens/auth/splash_screen.dart';
@@ -25,6 +27,8 @@ class AppRoutes {
   static const String orderDetail = '/order-detail';
   static const String userDetail = '/user-detail';
   static const String accountInfo = '/account-info';
+  static const String serviceManagement = '/service-management';
+  static const String addServiceSpa = '/add-service-spa';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -79,17 +83,27 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
-      path: '${AppRoutes.userDetail}/:userId',
+      path: AppRoutes.userDetail,
       name: 'user-detail',
       builder: (context, state) {
-        final userId = state.pathParameters['userId'] ?? '';
-        return UserDetailScreen(userId: userId);
+        final email = state.extra as String;
+        return UserDetailScreen(email: email);
       },
     ),
     GoRoute(
       path: AppRoutes.accountInfo,
       name: 'account-info',
       builder: (context, state) => const AccountInfoScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.serviceManagement,
+      name: 'service-management',
+      builder: (context, state) => const ServiceManagementScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.addServiceSpa,
+      name: 'add-service-spa',
+      builder: (context, state) => const AddSpaServiceScreen(),
     ),
   ],
 );

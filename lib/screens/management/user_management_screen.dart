@@ -177,7 +177,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          context.push(AppRoutes.userDetail, extra: user.email);
+        },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),

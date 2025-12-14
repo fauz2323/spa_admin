@@ -6,8 +6,6 @@ import 'package:spa_admin/models/pending_orders_model.dart';
 import 'package:spa_admin/screens/home/cubit/home_cubit.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 import '../../utils/routes.dart';
-import '../../models/dashboard_stats.dart';
-import '../../models/order.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -248,6 +246,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   Icons.dashboard,
                   'Dashboard',
                   () => context.go(AppRoutes.home),
+                ),
+                _buildDrawerItem(
+                  Icons.list,
+                  'Service Spa',
+                  () => context.push(AppRoutes.serviceManagement),
                 ),
                 _buildDrawerItem(
                   Icons.assignment,
