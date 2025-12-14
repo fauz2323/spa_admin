@@ -208,7 +208,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
       ),
       child: InkWell(
         onTap: () {
-          _showServiceDetail(service);
+          _showServiceDetail(context, service);
         },
         borderRadius: BorderRadius.circular(AppConstants.borderRadius),
         child: Padding(
@@ -393,7 +393,7 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
     );
   }
 
-  void _showServiceDetail(Service service) {
+  void _showServiceDetail(BuildContext contextParent, Service service) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -523,11 +523,9 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Edit service coming soon!'),
-                                ),
+                              contextParent.push(
+                                AppRoutes.addServiceSpa,
+                                extra: service.id.toString(),
                               );
                             },
                             style: ElevatedButton.styleFrom(

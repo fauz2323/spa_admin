@@ -8,7 +8,8 @@ import 'package:spa_admin/utils/routes.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
 class AddSpaServiceScreen extends StatefulWidget {
-  const AddSpaServiceScreen({super.key});
+  const AddSpaServiceScreen({super.key, required this.id});
+  final String id;
 
   @override
   State<AddSpaServiceScreen> createState() => _AddSpaServiceScreenState();
@@ -39,7 +40,7 @@ class _AddSpaServiceScreenState extends State<AddSpaServiceScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AddSpaServiceCubit(),
+      create: (context) => AddSpaServiceCubit()..initial(widget.id),
       child: Builder(builder: (context) => _build(context)),
     );
   }
@@ -51,6 +52,17 @@ class _AddSpaServiceScreenState extends State<AddSpaServiceScreen> {
         listener: (context, state) {
           state.maybeWhen(
             orElse: () {},
+            loaded: (data) {
+              _nameController.text = data.data.service.name;
+              _descriptionController.text = data.data.service.description;
+              _priceController.text = data.data.service.price.toString();
+              _durationController.text = data.data.service.duration.toString();
+              _imageUrlController.text = data.data.service.image;
+              _pointsController.text = data.data.service.points.toString();
+              _isActive = data.data.service.isActive;
+
+              setState(() {});
+            },
             success: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Service berhasil ditambahkan')),

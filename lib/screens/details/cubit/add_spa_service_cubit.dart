@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:spa_admin/dto/create_service_dto.dart';
+import 'package:spa_admin/models/service_detail_model.dart';
 import 'package:spa_admin/network/service_management_network.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
@@ -12,6 +13,27 @@ part 'add_spa_service_cubit.freezed.dart';
 class AddSpaServiceCubit extends Cubit<AddSpaServiceState> {
   AddSpaServiceCubit() : super(const AddSpaServiceState.initial());
   late String token;
+
+  initial(String id) async {
+    emit(const AddSpaServiceState.loading());
+    if (id == '0') {
+      return emit(const AddSpaServiceState.initial());
+    }
+
+    token = await TokenUtils.getToken() ?? '';
+    final req = await ServiceManagementNetwork().getSpaServiceDetail(token, id);
+    req.fold(
+      (l) {
+        if (l.statusCode == 401) {
+          emit(const AddSpaServiceState.unauthorized());
+        }
+        emit(AddSpaServiceState.failure(l.message));
+      },
+      (r) {
+        emit(AddSpaServiceState.loaded(r));
+      },
+    );
+  }
 
   createData(CreateServiceDto data) async {
     emit(const AddSpaServiceState.loading());

@@ -103,7 +103,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.addServiceSpa,
       name: 'add-service-spa',
-      builder: (context, state) => const AddSpaServiceScreen(),
+      builder: (context, state) {
+        final id = state.extra ?? '0';
+        return AddSpaServiceScreen(id: id as String);
+      },
     ),
   ],
 );
