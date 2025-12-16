@@ -12,7 +12,7 @@ class MissionNetwork {
     Map body = {'id': id};
 
     final response = await http.get(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/missions'),
+      Uri.parse('https://rizky-firman.com/api/admin/missions'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',

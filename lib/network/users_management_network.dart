@@ -10,7 +10,7 @@ import 'package:spa_admin/models/users_points_model.dart';
 class UsersManagementNetwork {
   Future<Either<NetworkModel, UsersListModel>> usersList(String token) async {
     final response = await http.get(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/users'),
+      Uri.parse('https://rizky-firman.com/api/admin/users'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
@@ -38,7 +38,7 @@ class UsersManagementNetwork {
     String token,
   ) async {
     final response = await http.get(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/users/points'),
+      Uri.parse('https://rizky-firman.com/api/admin/users/points'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
@@ -69,7 +69,7 @@ class UsersManagementNetwork {
     Map<String, String> body = {'email': email};
 
     final response = await http.post(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/users/detail'),
+      Uri.parse('https://rizky-firman.com/api/admin/users/detail'),
       body: body,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

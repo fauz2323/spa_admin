@@ -9,7 +9,7 @@ import 'package:spa_admin/models/pending_orders_model.dart';
 class HomeNetwork {
   Future<Either<NetworkModel, DashboardModel>> dashboard(String token) async {
     final response = await http.get(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/dashboard'),
+      Uri.parse('https://rizky-firman.com/api/admin/dashboard'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
@@ -38,7 +38,7 @@ class HomeNetwork {
     String status,
   ) async {
     final response = await http.get(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/orders/$status'),
+      Uri.parse('https://rizky-firman.com/api/admin/orders/$status'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',

@@ -13,7 +13,7 @@ class ServiceManagementNetwork {
     String token,
   ) async {
     final response = await http.get(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/spa-services'),
+      Uri.parse('https://rizky-firman.com/api/admin/spa-services'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
@@ -42,9 +42,7 @@ class ServiceManagementNetwork {
     String id,
   ) async {
     final response = await http.get(
-      Uri.parse(
-        'https://rumah.nurfauzan.site/api/admin/spa-service/detail/$id',
-      ),
+      Uri.parse('https://rizky-firman.com/api/admin/spa-service/detail/$id'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
@@ -73,9 +71,7 @@ class ServiceManagementNetwork {
     String id,
   ) async {
     final response = await http.delete(
-      Uri.parse(
-        'https://rumah.nurfauzan.site/api/admin/spa-services/$id/delete',
-      ),
+      Uri.parse('https://rizky-firman.com/api/admin/spa-services/$id/delete'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
@@ -107,7 +103,7 @@ class ServiceManagementNetwork {
     CreateServiceDto data,
   ) async {
     final response = await http.post(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/spa-services/create'),
+      Uri.parse('https://rizky-firman.com/api/admin/spa-services/create'),
       body: jsonEncode(data.toJson()),
       headers: {
         'Content-Type': 'application/json',

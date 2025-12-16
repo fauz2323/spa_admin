@@ -15,7 +15,7 @@ class OrderManagementNetwork {
     Map body = {'id': id};
 
     final response = await http.post(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/orders/view'),
+      Uri.parse('https://rizky-firman.com/api/admin/orders/view'),
       body: body,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -48,7 +48,7 @@ class OrderManagementNetwork {
     Map body = {'status': status, 'id': id};
 
     final response = await http.post(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/orders/changeStatus'),
+      Uri.parse('https://rizky-firman.com/api/admin/orders/changeStatus'),
       body: body,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

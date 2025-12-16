@@ -10,7 +10,7 @@ class VoucherNetwork {
     String token,
   ) async {
     final response = await http.get(
-      Uri.parse('https://rumah.nurfauzan.site/api/admin/vouchers'),
+      Uri.parse('https://rizky-firman.com/api/admin/vouchers'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',

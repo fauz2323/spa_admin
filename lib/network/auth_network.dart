@@ -12,7 +12,7 @@ class AuthNetwork {
     Map body = {'email': loginDto.email, 'password': loginDto.password};
 
     final response = await http.post(
-      Uri.parse('https://rumah.nurfauzan.site/api/login'),
+      Uri.parse('https://rizky-firman.com/api/login'),
       body: body,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -38,7 +38,7 @@ class AuthNetwork {
 
   Future<Either<NetworkModel, ProfileModel>> profile(String token) async {
     final response = await http.get(
-      Uri.parse('https://rumah.nurfauzan.site/api/profile'),
+      Uri.parse('https://rizky-firman.com/api/profile'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
