@@ -1,6 +1,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:spa_admin/screens/details/add_spa_service_screen.dart';
+import 'package:spa_admin/screens/management/mission_management_screen.dart';
 import 'package:spa_admin/screens/management/service_management_screen.dart';
+import 'package:spa_admin/screens/management/voucher_management_screen.dart';
 
 // Screens
 import '../screens/auth/splash_screen.dart';
@@ -29,6 +31,8 @@ class AppRoutes {
   static const String accountInfo = '/account-info';
   static const String serviceManagement = '/service-management';
   static const String addServiceSpa = '/add-service-spa';
+  static const String voucherManagement = '/voucher-management';
+  static const String missionManagement = '/mission-management';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -106,6 +110,20 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         final id = state.extra ?? '0';
         return AddSpaServiceScreen(id: id as String);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.voucherManagement,
+      name: 'voucher-management',
+      builder: (context, state) {
+        return const VoucherManagementScreen();
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.missionManagement,
+      name: 'mission-management',
+      builder: (context, state) {
+        return const MissionManagementScreen();
       },
     ),
   ],

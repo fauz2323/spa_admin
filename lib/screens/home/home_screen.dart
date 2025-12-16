@@ -268,6 +268,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   () => context.push(AppRoutes.rewardManagement),
                 ),
                 _buildDrawerItem(
+                  Icons.local_offer,
+                  'Voucher Management',
+                  () => context.push(AppRoutes.voucherManagement),
+                ),
+                _buildDrawerItem(
+                  Icons.badge,
+                  'Mission Management',
+                  () => context.push(AppRoutes.missionManagement),
+                ),
+                _buildDrawerItem(
                   Icons.leaderboard,
                   'User Ranking',
                   () => context.push(AppRoutes.userRanking),

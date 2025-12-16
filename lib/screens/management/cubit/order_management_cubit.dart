@@ -15,6 +15,7 @@ class OrderManagementCubit extends Cubit<OrderManagementState> {
     emit(const OrderManagementState.loading());
     try {
       token = await TokenUtils.getToken() ?? '';
+      print('OrderManagementCubit Token: $token');
       final req = await HomeNetwork().pendingOrders(token, 'all');
 
       req.fold(
