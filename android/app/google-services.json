@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "367795415789",
+    "project_id": "woodman-7a8d1",
+    "storage_bucket": "woodman-7a8d1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367795415789:android:b3a9efec5ab6b55cd1fae4",
+        "android_client_info": {
+          "package_name": "com.example.spa_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4MjqM-996PhMK0EC6EDqgPB6bpoQwLl4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

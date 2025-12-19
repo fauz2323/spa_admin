@@ -1,8 +1,35 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:spa_admin/firebase/fcm_services.dart';
+import 'package:spa_admin/firebase/local_notification_handler.dart';
+import 'package:spa_admin/firebase_options.dart';
 import 'utils/routes.dart';
 import 'utils/constants.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await LocalNotificationHandler.init();
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  await FcmServices().init();
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    final notification = message.notification;
+
+    if (notification != null) {
+      LocalNotificationHandler.show(
+        title: notification.title ?? '',
+        body: notification.body ?? '',
+      );
+    }
+  });
+
+  // subscribe to topic on each app start-up
+  await FirebaseMessaging.instance.subscribeToTopic('admin_notifications');
+
   runApp(const SpaAdminApp());
 }
 
