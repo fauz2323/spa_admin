@@ -5,6 +5,7 @@ import 'package:spa_admin/models/dashboard_model.dart';
 import 'package:spa_admin/models/network_model.dart';
 import 'package:spa_admin/models/pending_orders_model.dart';
 import 'package:spa_admin/network/home_network.dart';
+import 'package:spa_admin/network/order_management_network.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
 part 'home_state.dart';
@@ -13,6 +14,8 @@ part 'home_cubit.freezed.dart';
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(const HomeState.initial());
   late String token;
+  late DashboardModel data;
+  late PendingOrdersModel pendingOrdersData;
 
   initial() async {
     emit(const HomeState.loading());
@@ -38,11 +41,13 @@ class HomeCubit extends Cubit<HomeState> {
           if (l.statusCode == 401) {
             emit(const HomeState.unauthorized());
           } else {
-            emit(HomeState.error(l.message ?? 'Unknown error'));
+            emit(HomeState.error(l.message));
           }
         },
         (r) {
-          emit(HomeState.loaded(r.a, r.b));
+          data = r.a;
+          pendingOrdersData = r.b;
+          emit(HomeState.loaded(data, pendingOrdersData, false));
         },
       );
 
@@ -61,6 +66,27 @@ class HomeCubit extends Cubit<HomeState> {
       // );
     } catch (e) {
       emit(HomeState.error(e.toString()));
+    }
+  }
+
+  Future<String> getExcelDownload() async {
+    emit(HomeState.loaded(data, pendingOrdersData, true));
+    try {
+      final download = await OrderManagementNetwork().downloadExcel(token);
+      return download.fold<String>(
+        (l) {
+          emit(HomeState.error(l.message));
+          return l.message;
+        },
+        (r) {
+          emit(HomeState.loaded(data, pendingOrdersData, false));
+          return r;
+        },
+      );
+    } catch (e) {
+      print(e.toString());
+      emit(HomeState.error(e.toString()));
+      return e.toString();
     }
   }
 }

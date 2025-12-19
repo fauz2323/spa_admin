@@ -131,13 +131,13 @@ return unauthorized(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String message)?  error,TResult Function( DashboardModel data,  PendingOrdersModel pendingOrders)?  loaded,TResult Function()?  unauthorized,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String message)?  error,TResult Function( DashboardModel data,  PendingOrdersModel pendingOrders,  bool isDownloading)?  loaded,TResult Function()?  unauthorized,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Error() when error != null:
 return error(_that.message);case _Loaded() when loaded != null:
-return loaded(_that.data,_that.pendingOrders);case _Unauthorized() when unauthorized != null:
+return loaded(_that.data,_that.pendingOrders,_that.isDownloading);case _Unauthorized() when unauthorized != null:
 return unauthorized();case _:
   return orElse();
 
@@ -156,13 +156,13 @@ return unauthorized();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String message)  error,required TResult Function( DashboardModel data,  PendingOrdersModel pendingOrders)  loaded,required TResult Function()  unauthorized,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String message)  error,required TResult Function( DashboardModel data,  PendingOrdersModel pendingOrders,  bool isDownloading)  loaded,required TResult Function()  unauthorized,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
 return loading();case _Error():
 return error(_that.message);case _Loaded():
-return loaded(_that.data,_that.pendingOrders);case _Unauthorized():
+return loaded(_that.data,_that.pendingOrders,_that.isDownloading);case _Unauthorized():
 return unauthorized();case _:
   throw StateError('Unexpected subclass');
 
@@ -180,13 +180,13 @@ return unauthorized();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String message)?  error,TResult? Function( DashboardModel data,  PendingOrdersModel pendingOrders)?  loaded,TResult? Function()?  unauthorized,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String message)?  error,TResult? Function( DashboardModel data,  PendingOrdersModel pendingOrders,  bool isDownloading)?  loaded,TResult? Function()?  unauthorized,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
 return loading();case _Error() when error != null:
 return error(_that.message);case _Loaded() when loaded != null:
-return loaded(_that.data,_that.pendingOrders);case _Unauthorized() when unauthorized != null:
+return loaded(_that.data,_that.pendingOrders,_that.isDownloading);case _Unauthorized() when unauthorized != null:
 return unauthorized();case _:
   return null;
 
@@ -329,11 +329,12 @@ as String,
 
 
 class _Loaded implements HomeState {
-  const _Loaded(this.data, this.pendingOrders);
+  const _Loaded(this.data, this.pendingOrders, this.isDownloading);
   
 
  final  DashboardModel data;
  final  PendingOrdersModel pendingOrders;
+ final  bool isDownloading;
 
 /// Create a copy of HomeState
 /// with the given fields replaced by the non-null parameter values.
@@ -345,16 +346,16 @@ _$LoadedCopyWith<_Loaded> get copyWith => __$LoadedCopyWithImpl<_Loaded>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.data, data) || other.data == data)&&(identical(other.pendingOrders, pendingOrders) || other.pendingOrders == pendingOrders));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&(identical(other.data, data) || other.data == data)&&(identical(other.pendingOrders, pendingOrders) || other.pendingOrders == pendingOrders)&&(identical(other.isDownloading, isDownloading) || other.isDownloading == isDownloading));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,data,pendingOrders);
+int get hashCode => Object.hash(runtimeType,data,pendingOrders,isDownloading);
 
 @override
 String toString() {
-  return 'HomeState.loaded(data: $data, pendingOrders: $pendingOrders)';
+  return 'HomeState.loaded(data: $data, pendingOrders: $pendingOrders, isDownloading: $isDownloading)';
 }
 
 
@@ -365,7 +366,7 @@ abstract mixin class _$LoadedCopyWith<$Res> implements $HomeStateCopyWith<$Res> 
   factory _$LoadedCopyWith(_Loaded value, $Res Function(_Loaded) _then) = __$LoadedCopyWithImpl;
 @useResult
 $Res call({
- DashboardModel data, PendingOrdersModel pendingOrders
+ DashboardModel data, PendingOrdersModel pendingOrders, bool isDownloading
 });
 
 
@@ -382,11 +383,12 @@ class __$LoadedCopyWithImpl<$Res>
 
 /// Create a copy of HomeState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? data = null,Object? pendingOrders = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? data = null,Object? pendingOrders = null,Object? isDownloading = null,}) {
   return _then(_Loaded(
 null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
 as DashboardModel,null == pendingOrders ? _self.pendingOrders : pendingOrders // ignore: cast_nullable_to_non_nullable
-as PendingOrdersModel,
+as PendingOrdersModel,null == isDownloading ? _self.isDownloading : isDownloading // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

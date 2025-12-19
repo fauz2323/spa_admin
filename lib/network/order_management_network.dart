@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:spa_admin/models/network_model.dart';
 import 'package:spa_admin/models/order_detail_model.dart';
 import 'package:spa_admin/models/service_detail_model.dart';
@@ -69,6 +72,38 @@ class OrderManagementNetwork {
       NetworkModel(
         statusCode: response.statusCode,
         message: jsonData['message'] ?? 'Failed to fetch spa services list',
+      ),
+    );
+  }
+
+  Future<Either<NetworkModel, String>> downloadExcel(String token) async {
+    await Permission.storage.request();
+
+    final response = await http.get(
+      Uri.parse('https://rizky-firman.com/api/orders/export'),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept':
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final dir = await getExternalStorageDirectory();
+      final filePath = "${dir!.path}/report.xlsx";
+
+      final file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+
+      return Right('file saved at $filePath');
+    }
+    return Left(
+      NetworkModel(
+        statusCode: response.statusCode,
+        message: 'Failed to fetch spa services list',
       ),
     );
   }

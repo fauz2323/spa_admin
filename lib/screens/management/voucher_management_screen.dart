@@ -28,9 +28,7 @@ class VoucherManagementScreen extends StatelessWidget {
             icon: const Icon(Icons.add),
             onPressed: () {
               // Add voucher action
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Add voucher clicked')),
-              );
+              context.push('/add-voucher', extra: 0);
             },
           ),
         ],

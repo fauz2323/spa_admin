@@ -8,6 +8,7 @@ class HomeState with _$HomeState {
   const factory HomeState.loaded(
     DashboardModel data,
     PendingOrdersModel pendingOrders,
+    bool isDownloading,
   ) = _Loaded;
   const factory HomeState.unauthorized() = _Unauthorized;
 }

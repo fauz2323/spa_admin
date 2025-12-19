@@ -46,6 +46,7 @@ class MissionManagementScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // TODO: Add new mission
+          context.push('/add-mission', extra: 0);
         },
         backgroundColor: Colors.teal,
         child: const Icon(Icons.add),

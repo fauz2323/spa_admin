@@ -16,8 +16,6 @@ class HomeNetwork {
         'Authorization': 'Bearer $token',
       },
     );
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
 
     final jsonData = jsonDecode(response.body);
 

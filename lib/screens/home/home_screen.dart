@@ -62,8 +62,8 @@ class _HomeScreenState extends State<HomeScreen> {
             loading: () {
               return const Center(child: CircularProgressIndicator());
             },
-            loaded: (data, pendingOrders) {
-              return _loaded(context, data, pendingOrders);
+            loaded: (data, pendingOrders, isDownloading) {
+              return _loaded(context, data, pendingOrders, isDownloading);
             },
             error: (message) => Center(
               child: Text(
@@ -81,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
     BuildContext context,
     DashboardModel data,
     PendingOrdersModel pendingOrders,
+    bool isDownloading,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -155,7 +156,29 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 14),
+
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: isDownloading
+                  ? null
+                  : () async {
+                      final message = await context
+                          .read<HomeCubit>()
+                          .getExcelDownload();
+                      if (mounted) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(message)));
+                      }
+                    },
+              child: Text(
+                isDownloading ? 'Downloading...' : 'Download Orders Excel',
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
 
           // Revenue Cards
           // Row(
