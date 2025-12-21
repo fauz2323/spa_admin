@@ -11,16 +11,22 @@ part 'add_mission_cubit.freezed.dart';
 class AddMissionCubit extends Cubit<AddMissionState> {
   AddMissionCubit() : super(const AddMissionState.initial());
   late String token;
+  late bool isEdit;
+  late String idEdit;
 
   initial(String id) async {
     emit(const AddMissionState.loading());
     token = await TokenUtils.getToken() ?? '';
     // Simulate data fetching
     if (id == '0') {
+      isEdit = false;
       return emit(const AddMissionState.initial());
+    } else {
+      idEdit = id;
+      isEdit = true;
     }
 
-    final req = await MissionNetwork().getMission(token, id);
+    final req = await MissionNetwork().getMission(token, idEdit);
     req.fold(
       (l) {
         if (l.statusCode == 401) {

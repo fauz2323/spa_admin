@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:spa_admin/models/history_points_model.dart';
+import 'package:spa_admin/screens/management/cubit/reward_management_cubit.dart';
+import 'package:spa_admin/utils/tokien_utils.dart';
 import '../../models/reward_point.dart';
 
 class RewardManagementScreen extends StatefulWidget {
@@ -11,56 +15,6 @@ class RewardManagementScreen extends StatefulWidget {
 class _RewardManagementScreenState extends State<RewardManagementScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String _searchQuery = '';
-
-  // Mock data
-  final List<RewardPoint> _allRewardPoints = [
-    RewardPoint(
-      id: 'rp001',
-      userId: 'user001',
-      userName: 'Sarah Johnson',
-      points: 150,
-      reason: 'Full Body Massage booking',
-      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      type: 'earned',
-    ),
-    RewardPoint(
-      id: 'rp002',
-      userId: 'user002',
-      userName: 'Maria Silva',
-      points: -100,
-      reason: 'Discount redemption',
-      createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-      type: 'redeemed',
-    ),
-    RewardPoint(
-      id: 'rp003',
-      userId: 'user003',
-      userName: 'Jessica Brown',
-      points: 200,
-      reason: 'Hot Stone Therapy booking',
-      createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      type: 'earned',
-    ),
-    RewardPoint(
-      id: 'rp004',
-      userId: 'user001',
-      userName: 'Sarah Johnson',
-      points: -50,
-      reason: 'Free service redemption',
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      type: 'redeemed',
-    ),
-    RewardPoint(
-      id: 'rp005',
-      userId: 'user005',
-      userName: 'Lisa Anderson',
-      points: 300,
-      reason: 'Couple Massage booking',
-      createdAt: DateTime.now().subtract(const Duration(days: 3)),
-      type: 'earned',
-    ),
-  ];
 
   @override
   void initState() {
@@ -74,24 +28,16 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
     super.dispose();
   }
 
-  List<RewardPoint> _getFilteredRewardPoints(String? type) {
-    List<RewardPoint> filteredPoints = _allRewardPoints;
+  List<Datum> _getFilteredRewardPoints(String? type, HistoryPointModel? model) {
+    List<Datum> filteredPoints = model?.data ?? [];
 
-    if (type != null) {
-      filteredPoints = _allRewardPoints
-          .where((point) => point.type == type)
-          .toList();
-    }
-
-    if (_searchQuery.isNotEmpty) {
+    if (type == 'earned') {
       filteredPoints = filteredPoints
-          .where(
-            (point) =>
-                point.userName.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ||
-                point.reason.toLowerCase().contains(_searchQuery.toLowerCase()),
-          )
+          .where((point) => point.points > 0)
+          .toList();
+    } else if (type == 'redeemed') {
+      filteredPoints = filteredPoints
+          .where((point) => point.points < 0)
           .toList();
     }
 
@@ -100,6 +46,17 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => RewardManagementCubit()..initial(),
+      child: Builder(
+        builder: (context) {
+          return _build(context);
+        },
+      ),
+    );
+  }
+
+  Widget _build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -127,82 +84,96 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Stats and Search
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Stats Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        'Total Earned',
-                        _getTotalEarned().toString(),
-                        Colors.green,
-                        Icons.add_circle,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        'Total Redeemed',
-                        _getTotalRedeemed().toString(),
-                        Colors.red,
-                        Icons.remove_circle,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        'Net Points',
-                        (_getTotalEarned() + _getTotalRedeemed()).toString(),
-                        Colors.blue,
-                        Icons.account_balance,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Search Bar
-                TextField(
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search reward transactions...',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade100,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Reward Points List
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildRewardPointsList(_getFilteredRewardPoints(null)),
-                _buildRewardPointsList(_getFilteredRewardPoints('earned')),
-                _buildRewardPointsList(_getFilteredRewardPoints('redeemed')),
-              ],
-            ),
-          ),
-        ],
+      body: BlocConsumer<RewardManagementCubit, RewardManagementState>(
+        listener: (context, state) {
+          state.mapOrNull(
+            unauthorized: (_) async {
+              await TokenUtils.deleteAllTokens();
+            },
+          );
+        },
+        builder: (context, state) {
+          return state.maybeWhen(
+            orElse: () {
+              return const Center(child: CircularProgressIndicator());
+            },
+            loaded: (data) {
+              return _loaded(context, data);
+            },
+            error: (message) {
+              return Center(
+                child: Text(message, style: const TextStyle(color: Colors.red)),
+              );
+            },
+          );
+        },
       ),
+    );
+  }
+
+  Widget _loaded(BuildContext context, HistoryPointModel pointData) {
+    return Column(
+      children: [
+        // Stats and Search
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Stats Row
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      'Total Earned',
+                      pointData.data
+                          .where((point) => point.points > 0)
+                          .fold<int>(0, (sum, point) => sum + point.points)
+                          .toString(),
+                      Colors.green,
+                      Icons.add_circle,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Total Redeemed',
+                      pointData.data
+                          .where((point) => point.points < 0)
+                          .fold<int>(
+                            0,
+                            (sum, point) => sum + point.points.abs(),
+                          )
+                          .toString(),
+                      Colors.red,
+                      Icons.remove_circle,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Search Bar
+            ],
+          ),
+        ),
+
+        // Reward Points List
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildRewardPointsList(_getFilteredRewardPoints(null, pointData)),
+              _buildRewardPointsList(
+                _getFilteredRewardPoints('earned', pointData),
+              ),
+              _buildRewardPointsList(
+                _getFilteredRewardPoints('redeemed', pointData),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -242,7 +213,7 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
     );
   }
 
-  Widget _buildRewardPointsList(List<RewardPoint> rewardPoints) {
+  Widget _buildRewardPointsList(List<Datum> rewardPoints) {
     if (rewardPoints.isEmpty) {
       return const Center(
         child: Column(
@@ -275,8 +246,8 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
     );
   }
 
-  Widget _buildRewardPointCard(RewardPoint rewardPoint) {
-    final isEarned = rewardPoint.type == 'earned';
+  Widget _buildRewardPointCard(Datum rewardPoint) {
+    final isEarned = rewardPoint.points > 0;
     final color = isEarned ? Colors.green : Colors.red;
     final icon = isEarned ? Icons.add_circle : Icons.remove_circle;
 
@@ -306,7 +277,7 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        rewardPoint.userName,
+                        rewardPoint.user.name,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -337,7 +308,7 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
 
                   // Reason
                   Text(
-                    rewardPoint.reason,
+                    rewardPoint.description,
                     style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 8),
@@ -487,18 +458,6 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
         );
       },
     );
-  }
-
-  int _getTotalEarned() {
-    return _allRewardPoints
-        .where((point) => point.type == 'earned')
-        .fold(0, (sum, point) => sum + point.points);
-  }
-
-  int _getTotalRedeemed() {
-    return _allRewardPoints
-        .where((point) => point.type == 'redeemed')
-        .fold(0, (sum, point) => sum + point.points);
   }
 
   String _formatDateTime(DateTime dateTime) {

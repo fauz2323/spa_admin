@@ -1,4 +1,6 @@
 import 'package:go_router/go_router.dart';
+import 'package:spa_admin/dto/create_mission_dto.dart';
+import 'package:spa_admin/dto/create_voucher_dto.dart';
 import 'package:spa_admin/screens/details/add_mission_screen.dart';
 import 'package:spa_admin/screens/details/add_spa_service_screen.dart';
 import 'package:spa_admin/screens/details/add_voucher_screen.dart';
@@ -134,16 +136,35 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.addMission,
       name: 'add-mission',
       builder: (context, state) {
-        final id = state.extra ?? 0;
-        return AddMissionScreen(id: id as int);
+        final dto = state.extra as CreateMissionDto?;
+        print('DTO in route: $dto');
+        final int id = dto == null ? 0 : int.parse(dto.id ?? '0');
+        return AddMissionScreen(
+          id: id,
+          title: dto?.title,
+          description: dto?.description,
+          point: dto?.points.toString(),
+          goals: dto?.goal.toString(),
+        );
       },
     ),
     GoRoute(
       path: AppRoutes.addVoucher,
       name: 'add-voucher',
       builder: (context, state) {
-        final id = state.extra ?? 0;
-        return AddVoucherScreen(id: id as int);
+        final dto = state.extra as CreateVoucherDto?;
+
+        final int id = dto == null ? 0 : dto.id ?? 0;
+        final String expiryDate = dto != null
+            ? "${dto.expiryDate.year}-${dto.expiryDate.month.toString().padLeft(2, '0')}-${dto.expiryDate.day.toString().padLeft(2, '0')}"
+            : '';
+        return AddVoucherScreen(
+          id: id,
+          name: dto?.name,
+          price: dto?.price,
+          discountAmount: dto?.discountAmount.toString(),
+          expiryDate: expiryDate,
+        );
       },
     ),
   ],

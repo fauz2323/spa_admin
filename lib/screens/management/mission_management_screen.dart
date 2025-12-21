@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:spa_admin/dto/create_mission_dto.dart';
 import 'package:spa_admin/models/list_mission_model.dart';
 import 'package:spa_admin/screens/management/cubit/mission_cubit.dart';
+import 'package:spa_admin/utils/routes.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
 class MissionManagementScreen extends StatelessWidget {
@@ -46,7 +48,7 @@ class MissionManagementScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // TODO: Add new mission
-          context.push('/add-mission', extra: 0);
+          context.push(AppRoutes.addMission);
         },
         backgroundColor: Colors.teal,
         child: const Icon(Icons.add),
@@ -60,12 +62,12 @@ class MissionManagementScreen extends StatelessWidget {
       itemCount: data.data.length,
       itemBuilder: (context, index) {
         final mission = data.data[index];
-        return _buildMissionCard(mission);
+        return _buildMissionCard(mission, context);
       },
     );
   }
 
-  Widget _buildMissionCard(Datum mission) {
+  Widget _buildMissionCard(Datum mission, BuildContext context) {
     final createdAt = DateTime.parse(mission.createdAt.toString());
     final formattedDate = DateFormat('dd MMM yyyy, HH:mm').format(createdAt);
 
@@ -149,7 +151,16 @@ class MissionManagementScreen extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.edit, color: Colors.blue),
                   onPressed: () {
-                    // TODO: Edit mission
+                    context.push(
+                      AppRoutes.addMission,
+                      extra: CreateMissionDto(
+                        title: mission.title,
+                        description: mission.description,
+                        points: int.parse(mission.points),
+                        goal: mission.goal,
+                        id: mission.id.toString(),
+                      ),
+                    );
                   },
                   tooltip: 'Edit',
                 ),

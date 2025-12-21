@@ -40,15 +40,31 @@ class MissionNetwork {
     String token,
     CreateMissionDto dto,
   ) async {
-    Map body = {
-      'title': dto.title,
-      'description': dto.description,
-      'points': dto.points,
-      'goal': dto.goal,
-    };
+    late Map body;
+    late Uri uri;
+
+    print('DTO ID: ${dto.id}');
+    if (dto.id != null) {
+      uri = Uri.parse('https://rizky-firman.com/api/admin/missions/edit');
+      body = {
+        'id': dto.id,
+        'title': dto.title,
+        'description': dto.description,
+        'points': dto.points.toString(),
+        'goal': dto.goal,
+      };
+    } else {
+      uri = Uri.parse('https://rizky-firman.com/api/admin/missions/create');
+      body = {
+        'title': dto.title,
+        'description': dto.description,
+        'points': dto.points.toString(),
+        'goal': dto.goal,
+      };
+    }
 
     final response = await http.post(
-      Uri.parse('https://rizky-firman.com/api/admin/missions/create'),
+      uri,
       body: jsonEncode(body),
       headers: {
         'Content-Type': 'application/json',
@@ -77,8 +93,10 @@ class MissionNetwork {
     String token,
     String id,
   ) async {
-    final response = await http.get(
-      Uri.parse('https://rizky-firman.com/api/admin/missions'),
+    Map body = {'id': id};
+    final response = await http.post(
+      Uri.parse('https://rizky-firman.com/api/admin/missions/detail'),
+      body: body,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',

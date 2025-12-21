@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:spa_admin/dto/create_voucher_dto.dart';
 import 'package:spa_admin/models/list_voucher_network.dart';
 import 'package:spa_admin/screens/management/cubit/voucers_cubit.dart';
+import 'package:spa_admin/utils/routes.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
 class VoucherManagementScreen extends StatelessWidget {
@@ -28,7 +30,7 @@ class VoucherManagementScreen extends StatelessWidget {
             icon: const Icon(Icons.add),
             onPressed: () {
               // Add voucher action
-              context.push('/add-voucher', extra: 0);
+              context.push('/add-voucher');
             },
           ),
         ],
@@ -152,8 +154,15 @@ class VoucherManagementScreen extends StatelessWidget {
               children: [
                 TextButton.icon(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Edit ${voucher.name}')),
+                    context.push(
+                      AppRoutes.addVoucher,
+                      extra: CreateVoucherDto(
+                        id: voucher.id,
+                        name: voucher.name,
+                        price: voucher.price,
+                        discountAmount: voucher.discountAmount.toDouble(),
+                        expiryDate: voucher.expiryDate,
+                      ),
                     );
                   },
                   icon: const Icon(Icons.edit, size: 18),

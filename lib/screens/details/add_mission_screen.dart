@@ -7,8 +7,19 @@ import 'package:spa_admin/utils/routes.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
 class AddMissionScreen extends StatefulWidget {
-  const AddMissionScreen({super.key, required this.id});
+  const AddMissionScreen({
+    super.key,
+    required this.id,
+    this.title,
+    this.description,
+    this.point,
+    this.goals,
+  });
   final int id;
+  final String? title;
+  final String? description;
+  final String? point;
+  final String? goals;
 
   @override
   State<AddMissionScreen> createState() => _AddMissionScreenState();
@@ -52,6 +63,12 @@ class _AddMissionScreenState extends State<AddMissionScreen> {
         listener: (context, state) {
           state.maybeWhen(
             orElse: () {},
+            initial: () {
+              _titleController.text = widget.title ?? '';
+              _descriptionController.text = widget.description ?? '';
+              _pointsController.text = widget.point ?? '';
+              _goalController.text = widget.goals ?? '';
+            },
             loaded: (data) {
               _titleController.text = data.data.title;
               _descriptionController.text = data.data.description;
@@ -171,6 +188,7 @@ class _AddMissionScreenState extends State<AddMissionScreen> {
                       if (_formKey.currentState!.validate()) {
                         await context.read<AddMissionCubit>().submitMission(
                           CreateMissionDto(
+                            id: widget.id == 0 ? null : widget.id.toString(),
                             title: _titleController.text,
                             description: _descriptionController.text,
                             points: int.parse(_pointsController.text),
