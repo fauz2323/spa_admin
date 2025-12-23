@@ -87,4 +87,27 @@ class VoucherNetwork {
       ),
     );
   }
+
+  Future<NetworkModel> deleteVoucher(String token, String id) async {
+    Map body = {'id': id};
+
+    final response = await http.post(
+      Uri.parse('https://rizky-firman.com/api/admin/vouchers/delete'),
+      body: body,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    final jsonData = jsonDecode(response.body);
+
+    return NetworkModel(
+      statusCode: response.statusCode,
+      message: jsonData['message'] ?? 'Failed to delete voucher',
+    );
+  }
 }

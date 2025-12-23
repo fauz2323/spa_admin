@@ -11,8 +11,9 @@ class MissionCubit extends Cubit<MissionState> {
   MissionCubit() : super(const MissionState.initial());
 
   late String token;
+  late ListMissionModel missions;
 
-  initial() async {
+  Future<void> initial() async {
     emit(const MissionState.loading());
     try {
       token = await TokenUtils.getToken() ?? '';
@@ -28,11 +29,24 @@ class MissionCubit extends Cubit<MissionState> {
           }
         },
         (r) {
-          emit(MissionState.loaded(r));
+          missions = r;
+          emit(MissionState.loaded(missions));
         },
       );
     } catch (e) {
       emit(MissionState.error(e.toString()));
+    }
+  }
+
+  Future<String> deleteMission(String id) async {
+    emit(const MissionState.loading());
+    try {
+      final req = await MissionNetwork().deleteMission(token, id);
+      await initial();
+      return req.message;
+    } catch (e) {
+      emit(MissionState.error(e.toString()));
+      return e.toString();
     }
   }
 }

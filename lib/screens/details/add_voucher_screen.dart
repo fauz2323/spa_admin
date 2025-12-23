@@ -231,9 +231,7 @@ class _AddVoucherScreenState extends State<AddVoucherScreen> {
                       );
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text(
-                            'Form valid! (Static screen - no action)',
-                          ),
+                          content: Text('Voucher berhasil disimpan'),
                         ),
                       );
                     }

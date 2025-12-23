@@ -166,7 +166,10 @@ class MissionManagementScreen extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
+                  onPressed: () async {
+                    context.read<MissionCubit>().deleteMission(
+                      mission.id.toString(),
+                    );
                     // TODO: Delete mission
                   },
                   tooltip: 'Delete',

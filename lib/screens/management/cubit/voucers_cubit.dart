@@ -10,8 +10,9 @@ part 'voucers_cubit.freezed.dart';
 class VoucersCubit extends Cubit<VoucersState> {
   VoucersCubit() : super(const VoucersState.initial());
   late String token;
+  late ListVouchersModel vouchers;
 
-  initial() async {
+  Future<void> initial() async {
     emit(const VoucersState.loading());
     try {
       token = await TokenUtils.getToken() ?? '';
@@ -31,6 +32,18 @@ class VoucersCubit extends Cubit<VoucersState> {
       );
     } catch (e) {
       emit(VoucersState.error(e.toString()));
+    }
+  }
+
+  Future<String> delete(String id) async {
+    emit(const VoucersState.loading());
+    try {
+      final req = await VoucherNetwork().deleteVoucher(token, id);
+      await initial();
+      return req.message;
+    } catch (e) {
+      emit(VoucersState.error(e.toString()));
+      return e.toString();
     }
   }
 }

@@ -59,13 +59,18 @@ class VoucherManagementScreen extends StatelessWidget {
   }
 
   Widget _loaded(BuildContext context, ListVouchersModel data) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: data.data.length,
-      itemBuilder: (context, index) {
-        final voucher = data.data[index];
-        return _buildVoucherCard(context, voucher);
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<VoucersCubit>().initial();
       },
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: data.data.length,
+        itemBuilder: (context, index) {
+          final voucher = data.data[index];
+          return _buildVoucherCard(context, voucher);
+        },
+      ),
     );
   }
 
@@ -171,10 +176,13 @@ class VoucherManagementScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 TextButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Delete ${voucher.name}')),
+                  onPressed: () async {
+                    final message = await context.read<VoucersCubit>().delete(
+                      voucher.id.toString(),
                     );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(message)));
                   },
                   icon: const Icon(Icons.delete, size: 18),
                   label: const Text('Delete'),
