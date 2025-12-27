@@ -14,12 +14,15 @@ class AddMissionScreen extends StatefulWidget {
     this.description,
     this.point,
     this.goals,
+    this.backCallback,
   });
+
   final int id;
   final String? title;
   final String? description;
   final String? point;
   final String? goals;
+  final Function()? backCallback;
 
   @override
   State<AddMissionScreen> createState() => _AddMissionScreenState();
@@ -54,39 +57,47 @@ class _AddMissionScreenState extends State<AddMissionScreen> {
   }
 
   Widget _build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Mission'),
-        backgroundColor: Colors.blue,
-      ),
-      body: BlocConsumer<AddMissionCubit, AddMissionState>(
-        listener: (context, state) {
-          state.maybeWhen(
-            orElse: () {},
-            initial: () {
-              _titleController.text = widget.title ?? '';
-              _descriptionController.text = widget.description ?? '';
-              _pointsController.text = widget.point ?? '';
-              _goalController.text = widget.goals ?? '';
-            },
-            loaded: (data) {
-              _titleController.text = data.data.title;
-              _descriptionController.text = data.data.description;
-              _pointsController.text = data.data.points;
-              _goalController.text = data.data.goal.toString();
-            },
-            unauthorized: () async {
-              await TokenUtils.deleteAllTokens();
-              context.go(AppRoutes.login);
-            },
-          );
-        },
-        builder: (context, state) {
-          return state.maybeWhen(
-            orElse: () => _loaded(context, false),
-            loading: () => _loaded(context, true),
-          );
-        },
+    return PopScope(
+      canPop: true, // Allow the pop to happen
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          widget.backCallback?.call();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Add Mission'),
+          backgroundColor: Colors.blue,
+        ),
+        body: BlocConsumer<AddMissionCubit, AddMissionState>(
+          listener: (context, state) {
+            state.maybeWhen(
+              orElse: () {},
+              initial: () {
+                _titleController.text = widget.title ?? '';
+                _descriptionController.text = widget.description ?? '';
+                _pointsController.text = widget.point ?? '';
+                _goalController.text = widget.goals ?? '';
+              },
+              loaded: (data) {
+                _titleController.text = data.data.title;
+                _descriptionController.text = data.data.description;
+                _pointsController.text = data.data.points;
+                _goalController.text = data.data.goal.toString();
+              },
+              unauthorized: () async {
+                await TokenUtils.deleteAllTokens();
+                context.go(AppRoutes.login);
+              },
+            );
+          },
+          builder: (context, state) {
+            return state.maybeWhen(
+              orElse: () => _loaded(context, false),
+              loading: () => _loaded(context, true),
+            );
+          },
+        ),
       ),
     );
   }

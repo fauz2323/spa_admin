@@ -39,7 +39,7 @@ class MissionNetwork {
   Future<NetworkModel> deleteMission(String token, String id) async {
     Map body = {'id': id};
     final response = await http.post(
-      Uri.parse('https://rizky-firman.com/api/admin/missions'),
+      Uri.parse('https://rizky-firman.com/api/admin/missions/delete'),
       body: body,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

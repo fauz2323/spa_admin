@@ -57,13 +57,18 @@ class MissionManagementScreen extends StatelessWidget {
   }
 
   Widget _loaded(BuildContext context, ListMissionModel data) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: data.data.length,
-      itemBuilder: (context, index) {
-        final mission = data.data[index];
-        return _buildMissionCard(mission, context);
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<MissionCubit>().initial();
       },
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: data.data.length,
+        itemBuilder: (context, index) {
+          final mission = data.data[index];
+          return _buildMissionCard(mission, context);
+        },
+      ),
     );
   }
 
@@ -159,6 +164,9 @@ class MissionManagementScreen extends StatelessWidget {
                         points: int.parse(mission.points),
                         goal: mission.goal,
                         id: mission.id.toString(),
+                        backCallback: () {
+                          context.read<MissionCubit>().initial();
+                        }
                       ),
                     );
                   },
@@ -167,10 +175,11 @@ class MissionManagementScreen extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () async {
-                    context.read<MissionCubit>().deleteMission(
+                    final cubit = context.read<MissionCubit>();
+                    await cubit.deleteMission(
                       mission.id.toString(),
                     );
-                    // TODO: Delete mission
+                    cubit.initial();
                   },
                   tooltip: 'Delete',
                 ),

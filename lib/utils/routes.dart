@@ -145,6 +145,7 @@ final GoRouter appRouter = GoRouter(
           description: dto?.description,
           point: dto?.points.toString(),
           goals: dto?.goal.toString(),
+          backCallback: dto?.backCallback,
         );
       },
     ),
