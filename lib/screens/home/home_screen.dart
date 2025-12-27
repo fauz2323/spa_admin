@@ -15,12 +15,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  HomeCubit? _cubit;
+  HomeCubit get cubit => _cubit!;
+
   // Mock data
+
+  @override
+  void didChangeDependencies() {
+    _cubit ??= HomeCubit();
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomeCubit()..initial(),
+      create: (context) {
+        cubit.initial();
+        return cubit;
+      },
       child: Builder(builder: (context) => _build(context)),
     );
   }
@@ -156,29 +168,31 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 14),
 
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: isDownloading
-                  ? null
-                  : () async {
-                      final message = await context
-                          .read<HomeCubit>()
-                          .getExcelDownload();
-                      if (mounted) {
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text(message)));
-                      }
-                    },
-              child: Text(
-                isDownloading ? 'Downloading...' : 'Download Orders Excel',
+          if (cubit.shouldShowDownloadExcel()) ... {
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isDownloading
+                    ? null
+                    : () async {
+                  final message = await context
+                      .read<HomeCubit>()
+                      .getExcelDownload();
+                  if (mounted) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(message)));
+                  }
+                },
+                child: Text(
+                  isDownloading ? 'Downloading...' : 'Download Orders Excel',
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 14),
+            const SizedBox(height: 14),
+          },
 
           // Revenue Cards
           // Row(

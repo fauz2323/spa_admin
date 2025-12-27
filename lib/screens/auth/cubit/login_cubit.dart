@@ -4,6 +4,8 @@ import 'package:spa_admin/dto/login_dto.dart';
 import 'package:spa_admin/models/login_model.dart';
 import 'package:spa_admin/network/auth_network.dart';
 
+import '../../../utils/tokien_utils.dart';
+
 part 'login_state.dart';
 part 'login_cubit.freezed.dart';
 
@@ -23,6 +25,7 @@ class LoginCubit extends Cubit<LoginState> {
           return 'Login failed: ${l.message}';
         },
         (r) {
+          TokenUtils.saveUserEmail(email);
           emit(LoginState.loaded(r));
           return 'Login successful';
         },

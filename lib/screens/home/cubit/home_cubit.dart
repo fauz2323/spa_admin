@@ -16,12 +16,14 @@ class HomeCubit extends Cubit<HomeState> {
   late String token;
   late DashboardModel data;
   late PendingOrdersModel pendingOrdersData;
+  String? email;
 
   initial() async {
     emit(const HomeState.loading());
     try {
       // Simulate data fetching
       token = await TokenUtils.getToken() ?? '';
+      email = await TokenUtils.getEmail();
       final req = await Future.wait([
         HomeNetwork().dashboard(token),
         HomeNetwork().pendingOrders(token, 'pending'),
@@ -88,5 +90,9 @@ class HomeCubit extends Cubit<HomeState> {
       emit(HomeState.error(e.toString()));
       return e.toString();
     }
+  }
+
+  bool shouldShowDownloadExcel() {
+    return email?.toLowerCase().contains('owner') ?? false;
   }
 }

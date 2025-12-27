@@ -2,11 +2,17 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class TokenUtils {
   static const String _tokenKey = 'auth_token';
+  static const String _emailKey = 'email';
   static const String _fcmTokenKey = 'fcm_token';
 
   static Future<void> saveToken(String token) async {
     const storage = FlutterSecureStorage();
     await storage.write(key: _tokenKey, value: token);
+  }
+
+  static Future<void> saveUserEmail(String token) async {
+    const storage = FlutterSecureStorage();
+    await storage.write(key: _emailKey, value: token);
   }
 
   static Future<void> saveTokenFCM(String token) async {
@@ -17,6 +23,11 @@ class TokenUtils {
   static Future<String?> getToken() async {
     const storage = FlutterSecureStorage();
     return await storage.read(key: _tokenKey);
+  }
+
+  static Future<String?> getEmail() async {
+    const storage = FlutterSecureStorage();
+    return await storage.read(key: _emailKey);
   }
 
   static Future<String?> getTokenFCM() async {
