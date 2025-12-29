@@ -380,12 +380,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: data.data.status == 'confirmed'
-                            ? () {
-                                context.read<OrderDetailCubit>().changeStatus(
-                                  data.data.id.toString(),
-                                  'in_progress',
-                                );
-                              }
+                            ? () => _startService(context, data)
                             : null,
                         icon: const Icon(Icons.play_arrow),
                         label: const Text('Start Service'),
@@ -505,5 +500,55 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]},',
         );
+  }
+
+  void _startService(BuildContext context, OrderDetailModel data) {
+    final time = data.data.timeService;
+    final date = data.data.dateService;
+
+    final serviceDateTime = DateTime.parse('$date $time:00');
+
+    final now = DateTime.now();
+    final diff = serviceDateTime.difference(
+      now,
+    ); // service - now
+
+    // allow only if within next 15 minutes
+    final minutesDiff = diff.inMinutes;
+
+    if (minutesDiff <= 15) {
+      context.read<OrderDetailCubit>().changeStatus(
+        data.data.id.toString(),
+        'in_progress',
+      );
+    } else {
+      _showInfoDialog(
+        context,
+        message: 'Hanya bisa start service 15 menit sebelum jadwal',
+      );
+    }
+  }
+
+  void _showInfoDialog(BuildContext context, {required String message}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Text(message),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
