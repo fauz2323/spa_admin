@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:spa_admin/models/list_voucher_network.dart';
@@ -40,6 +42,27 @@ class VoucersCubit extends Cubit<VoucersState> {
     try {
       final req = await VoucherNetwork().deleteVoucher(token, id);
       await initial();
+      return req.message;
+    } catch (e) {
+      emit(VoucersState.error(e.toString()));
+      return e.toString();
+    }
+  }
+
+  Future<String> useVoucher(String? result) async {
+    final prevState = state;
+    if (result == null) return '';
+    emit(const VoucersState.loading());
+    try {
+      final jsonVoucher = jsonDecode(result);
+      final voucherId = jsonVoucher['id'].toString();
+      final userId = jsonVoucher['user_id'].toString();
+      final req = await VoucherNetwork().useVoucher(token, voucherId, userId);
+      if (req.statusCode != 200) {
+        emit(VoucersState.error(req.message));
+      } else {
+        emit(prevState);
+      }
       return req.message;
     } catch (e) {
       emit(VoucersState.error(e.toString()));

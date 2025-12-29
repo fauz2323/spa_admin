@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:spa_admin/models/network_model.dart';
@@ -92,12 +94,7 @@ class OrderManagementNetwork {
     print('Response body: ${response.body}');
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final dir = await getExternalStorageDirectory();
-      final filePath = "${dir!.path}/report.xlsx";
-
-      final file = File(filePath);
-      await file.writeAsBytes(response.bodyBytes);
-
+      final filePath = await saveExcel(response.bodyBytes, 'report');
       return Right('file saved at $filePath');
     }
     return Left(
@@ -106,5 +103,20 @@ class OrderManagementNetwork {
         message: 'Failed to fetch spa services list',
       ),
     );
+  }
+
+  Future<String> saveExcel(Uint8List? bytes, String filename) async {
+    final result = await FileSaver.instance.saveAs(
+      bytes: bytes,
+      fileExtension: 'xlsx',
+      name: filename,
+      mimeType: MimeType.microsoftExcel,
+    );
+
+    if (result != null) {
+      return result;
+    } else {
+      return '';
+    }
   }
 }

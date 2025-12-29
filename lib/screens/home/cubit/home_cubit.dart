@@ -9,6 +9,7 @@ import 'package:spa_admin/network/order_management_network.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
 part 'home_state.dart';
+
 part 'home_cubit.freezed.dart';
 
 class HomeCubit extends Cubit<HomeState> {
@@ -92,7 +93,19 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  bool shouldShowDownloadExcel() {
+  bool _isOwner() {
     return email?.toLowerCase().contains('owner') ?? false;
+  }
+
+  bool shouldShowDownloadExcel() {
+    return _isOwner();
+  }
+
+  String getName() {
+    if (_isOwner()) {
+      return 'Owner';
+    } else {
+      return 'Admin';
+    }
   }
 }

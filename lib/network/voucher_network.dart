@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
 import 'package:spa_admin/dto/create_voucher_dto.dart';
 import 'package:spa_admin/models/add_voucher_model.dart';
 import 'package:spa_admin/models/list_voucher_network.dart';
@@ -19,8 +20,8 @@ class VoucherNetwork {
         'Authorization': 'Bearer $token',
       },
     );
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
 
     final jsonData = jsonDecode(response.body);
 
@@ -71,8 +72,8 @@ class VoucherNetwork {
         'Authorization': 'Bearer $token',
       },
     );
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
 
     final jsonData = jsonDecode(response.body);
 
@@ -100,14 +101,41 @@ class VoucherNetwork {
         'Authorization': 'Bearer $token',
       },
     );
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
 
     final jsonData = jsonDecode(response.body);
 
     return NetworkModel(
       statusCode: response.statusCode,
       message: jsonData['message'] ?? 'Failed to delete voucher',
+    );
+  }
+
+  Future<NetworkModel> useVoucher(
+    String token,
+    String voucherId,
+    String userId,
+  ) async {
+    Map body = {'voucher_id': voucherId, 'user_id': userId};
+
+    final response = await http.post(
+      Uri.parse('https://rizky-firman.com/api/admin/vouchers/use'),
+      body: body,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
+
+    final jsonData = jsonDecode(response.body);
+
+    return NetworkModel(
+      statusCode: response.statusCode,
+      message: jsonData['message'] ?? 'Failed to use voucher',
     );
   }
 }

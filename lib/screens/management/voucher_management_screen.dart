@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:spa_admin/dto/create_voucher_dto.dart';
+import 'package:spa_admin/dto/qr_scan_dto.dart';
 import 'package:spa_admin/models/list_voucher_network.dart';
 import 'package:spa_admin/screens/management/cubit/voucers_cubit.dart';
 import 'package:spa_admin/utils/routes.dart';
@@ -35,6 +36,24 @@ class VoucherManagementScreen extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0, right: 16.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            context.push(
+              AppRoutes.qrScan,
+              extra: QRScanDto(
+                successScanCallback: ({result}) {
+                  context.read<VoucersCubit>().useVoucher(result);
+                },
+              ),
+            );
+          },
+          backgroundColor: Colors.blue,
+          child: const Icon(Icons.qr_code, color: Colors.white),
+        ),
+      ),
       body: BlocConsumer<VoucersCubit, VoucersState>(
         listener: (context, state) {
           state.whenOrNull(
@@ -50,7 +69,20 @@ class VoucherManagementScreen extends StatelessWidget {
             initial: () => const Center(child: Text('Initializing...')),
             loading: () => const Center(child: CircularProgressIndicator()),
             loaded: (data) => _loaded(context, data),
-            error: (message) => Center(child: Text('Error: $message')),
+            error: (message) => RefreshIndicator(
+              onRefresh: () async {
+                context.read<VoucersCubit>().initial();
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height - kToolbarHeight,
+                  child: Center(
+                    child: Text('Error: $message'), // Your widget here
+                  ),
+                ),
+              ),
+            ),
             unauthorized: () => const Center(child: Text('Unauthorized')),
           );
         },

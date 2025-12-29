@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spa_admin/dto/create_mission_dto.dart';
 import 'package:spa_admin/dto/create_voucher_dto.dart';
+import 'package:spa_admin/dto/qr_scan_dto.dart';
 import 'package:spa_admin/screens/details/add_mission_screen.dart';
 import 'package:spa_admin/screens/details/add_spa_service_screen.dart';
 import 'package:spa_admin/screens/details/add_voucher_screen.dart';
@@ -20,6 +22,7 @@ import '../screens/management/user_ranking_screen.dart';
 import '../screens/details/order_detail_screen.dart';
 import '../screens/details/user_detail_screen.dart';
 import '../screens/home/account_info_screen.dart';
+import '../screens/qr_scan/qr_scanner_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -39,6 +42,7 @@ class AppRoutes {
   static const String missionManagement = '/mission-management';
   static const String addMission = '/add-mission';
   static const String addVoucher = '/add-voucher';
+  static const String qrScan = '/qr-scan';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -137,7 +141,7 @@ final GoRouter appRouter = GoRouter(
       name: 'add-mission',
       builder: (context, state) {
         final dto = state.extra as CreateMissionDto?;
-        print('DTO in route: $dto');
+        debugPrint('DTO in route: $dto');
         final int id = dto == null ? 0 : int.parse(dto.id ?? '0');
         return AddMissionScreen(
           id: id,
@@ -166,6 +170,17 @@ final GoRouter appRouter = GoRouter(
           discountAmount: dto?.discountAmount.toString(),
           expiryDate: expiryDate,
         );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.qrScan,
+      name: 'qr-scan',
+      builder: (context, state) {
+        final dto = state.extra as QRScanDto?;
+        return QRScannerScreen(successScanCallback: dto?.successScanCallback);
+        // return QRScanScreen(
+        //   successScanCallback: dto?.successScanCallback,
+        // );
       },
     ),
   ],

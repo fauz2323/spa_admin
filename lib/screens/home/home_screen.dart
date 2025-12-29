@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   HomeCubit? _cubit;
+
   HomeCubit get cubit => _cubit!;
 
   // Mock data
@@ -108,19 +109,19 @@ class _HomeScreenState extends State<HomeScreen> {
               color: const Color(0xFF1976D2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome Back, Admin!',
-                  style: TextStyle(
+                  'Welcome Back, ${cubit.getName()}!',
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 8),
-                Text(
+                const SizedBox(height: 8),
+                const Text(
                   'Here\'s what\'s happening at your spa today',
                   style: TextStyle(
                     fontSize: 16,
@@ -169,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
 
-          if (cubit.shouldShowDownloadExcel()) ... {
+          if (cubit.shouldShowDownloadExcel()) ...{
             const SizedBox(height: 14),
             SizedBox(
               width: double.infinity,
@@ -177,15 +178,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: isDownloading
                     ? null
                     : () async {
-                  final message = await context
-                      .read<HomeCubit>()
-                      .getExcelDownload();
-                  if (mounted) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(message)));
-                  }
-                },
+                        final message = await context
+                            .read<HomeCubit>()
+                            .getExcelDownload();
+                        if (mounted) {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(message)));
+                        }
+                      },
                 child: Text(
                   isDownloading ? 'Downloading...' : 'Download Orders Excel',
                 ),
