@@ -613,8 +613,9 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
               title: const Text('Edit Service'),
               onTap: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Edit service coming soon!')),
+                context.push(
+                  AppRoutes.addServiceSpa,
+                  extra: service.id.toString(),
                 );
               },
             ),
