@@ -304,7 +304,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
                         ),
                       ),
                       Text(
-                        _formatDate(order.createdAt),
+                        '${order.dateService} ${order.timeService}',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,

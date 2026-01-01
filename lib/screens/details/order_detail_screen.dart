@@ -319,6 +319,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   const SizedBox(height: 12),
                   _buildDetailRow(
                     Icons.access_time,
+                    'Booking Time',
+                    data.data.timeService,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildDetailRow(
+                    Icons.access_time,
                     'Order Created',
                     _formatDateTime(data.data.createdAt),
                   ),
@@ -490,7 +496,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   String _formatDateTime(DateTime dateTime) {
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year} at ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+    return '${dateTime.year}-${dateTime.month}-${dateTime.day} at ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
   String _formatCurrency(double amount) {
@@ -509,9 +515,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final serviceDateTime = DateTime.parse('$date $time:00');
 
     final now = DateTime.now();
-    final diff = serviceDateTime.difference(
-      now,
-    ); // service - now
+    final diff = serviceDateTime.difference(now); // service - now
 
     // allow only if within next 15 minutes
     final minutesDiff = diff.inMinutes;
