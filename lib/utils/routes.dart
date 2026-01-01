@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spa_admin/dto/create_mission_dto.dart';
 import 'package:spa_admin/dto/create_voucher_dto.dart';
+import 'package:spa_admin/dto/edit_service_screen_dto.dart';
 import 'package:spa_admin/dto/qr_scan_dto.dart';
 import 'package:spa_admin/screens/details/add_mission_screen.dart';
 import 'package:spa_admin/screens/details/add_spa_service_screen.dart';
@@ -38,6 +39,7 @@ class AppRoutes {
   static const String accountInfo = '/account-info';
   static const String serviceManagement = '/service-management';
   static const String addServiceSpa = '/add-service-spa';
+  static const String editServiceSpa = '/edit-service-spa';
   static const String voucherManagement = '/voucher-management';
   static const String missionManagement = '/mission-management';
   static const String addMission = '/add-mission';
@@ -120,6 +122,18 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         final id = state.extra ?? '0';
         return AddSpaServiceScreen(id: id as String);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.editServiceSpa,
+      name: 'edit-service-spa',
+      builder: (context, state) {
+        final dto = state.extra as EditServiceScreenDto?;
+        return AddSpaServiceScreen(
+          id: dto?.id ?? '0',
+          editMode: true,
+          backCallback: dto?.backCallback,
+        );
       },
     ),
     GoRoute(

@@ -3,13 +3,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spa_admin/dto/create_service_dto.dart';
+import 'package:spa_admin/dto/update_service_dto.dart';
 import 'package:spa_admin/screens/details/cubit/add_spa_service_cubit.dart';
 import 'package:spa_admin/utils/routes.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
 class AddSpaServiceScreen extends StatefulWidget {
-  const AddSpaServiceScreen({super.key, required this.id});
+  const AddSpaServiceScreen({
+    super.key,
+    required this.id,
+    this.editMode = false,
+    this.backCallback,
+  });
+
   final String id;
+  final bool editMode;
+  final Function()? backCallback;
 
   @override
   State<AddSpaServiceScreen> createState() => _AddSpaServiceScreenState();
@@ -46,52 +55,64 @@ class _AddSpaServiceScreenState extends State<AddSpaServiceScreen> {
   }
 
   Widget _build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Tambah Spa Service'), elevation: 0),
-      body: BlocConsumer<AddSpaServiceCubit, AddSpaServiceState>(
-        listener: (context, state) {
-          state.maybeWhen(
-            orElse: () {},
-            loaded: (data) {
-              _nameController.text = data.data.service.name;
-              _descriptionController.text = data.data.service.description;
-              _priceController.text = data.data.service.price.toString();
-              _durationController.text = data.data.service.duration.toString();
-              _imageUrlController.text = data.data.service.image;
-              _pointsController.text = data.data.service.points.toString();
-              _isActive = data.data.service.isActive;
-            },
-            success: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Service berhasil ditambahkan')),
-              );
-              Navigator.pop(context);
-            },
-            failure: (errorMessage) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Gagal menambahkan service: $errorMessage'),
-                ),
-              );
-            },
-            unauthorized: () async {
-              await TokenUtils.deleteAllTokens();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Unauthorized. Silakan login kembali.'),
-                ),
-              );
-              if (!mounted) return;
-              context.go(AppRoutes.login);
-            },
-          );
-        },
-        builder: (context, state) {
-          return state.maybeWhen(
-            orElse: () => _loaded(context, false),
-            loading: () => _loaded(context, true),
-          );
-        },
+    return PopScope(
+      canPop: true, // Allow the pop to happen
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          widget.backCallback?.call();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('${widget.editMode ? 'Edit' : 'Tambah'} Spa Service'),
+          elevation: 0,
+        ),
+        body: BlocConsumer<AddSpaServiceCubit, AddSpaServiceState>(
+          listener: (context, state) {
+            state.maybeWhen(
+              orElse: () {},
+              loaded: (data) {
+                _nameController.text = data.data.service.name;
+                _descriptionController.text = data.data.service.description;
+                _priceController.text = data.data.service.price.toString();
+                _durationController.text = data.data.service.duration
+                    .toString();
+                _imageUrlController.text = data.data.service.image;
+                _pointsController.text = data.data.service.points.toString();
+                _isActive = data.data.service.isActive;
+              },
+              success: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Service berhasil ditambahkan')),
+                );
+                Navigator.pop(context);
+              },
+              failure: (errorMessage) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Gagal menambahkan service: $errorMessage'),
+                  ),
+                );
+              },
+              unauthorized: () async {
+                await TokenUtils.deleteAllTokens();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Unauthorized. Silakan login kembali.'),
+                  ),
+                );
+                if (!mounted) return;
+                context.go(AppRoutes.login);
+              },
+            );
+          },
+          builder: (context, state) {
+            return state.maybeWhen(
+              orElse: () => _loaded(context, false),
+              loading: () => _loaded(context, true),
+            );
+          },
+        ),
       ),
     );
   }
@@ -313,16 +334,34 @@ class _AddSpaServiceScreenState extends State<AddSpaServiceScreen> {
                 ? null
                 : () {
                     if (_formKey.currentState!.validate()) {
-                      CreateServiceDto data = CreateServiceDto(
-                        name: _nameController.text,
-                        description: _descriptionController.text,
-                        duration: int.parse(_durationController.text),
-                        price: int.parse(_priceController.text),
-                        isActive: _isActive ? 1 : 0,
-                        image: _imageUrlController.text,
-                        point: int.parse(_pointsController.text),
-                      );
-                      context.read<AddSpaServiceCubit>().createData(data);
+                      if (widget.editMode) {
+                        UpdateServiceDto data = UpdateServiceDto(
+                          id: widget.id,
+                          name: _nameController.text,
+                          description: _descriptionController.text,
+                          duration: int.parse(_durationController.text),
+                          price: int.parse(
+                            _priceController.text.split('.').first,
+                          ),
+                          isActive: _isActive ? 1 : 0,
+                          image: _imageUrlController.text,
+                          points: int.parse(_pointsController.text),
+                        );
+                        context.read<AddSpaServiceCubit>().update(data);
+                      } else {
+                        CreateServiceDto data = CreateServiceDto(
+                          name: _nameController.text,
+                          description: _descriptionController.text,
+                          duration: int.parse(_durationController.text),
+                          price: int.parse(
+                            _priceController.text.split('.').first,
+                          ),
+                          isActive: _isActive ? 1 : 0,
+                          image: _imageUrlController.text,
+                          point: int.parse(_pointsController.text),
+                        );
+                        context.read<AddSpaServiceCubit>().createData(data);
+                      }
                     }
                   },
             style: ElevatedButton.styleFrom(

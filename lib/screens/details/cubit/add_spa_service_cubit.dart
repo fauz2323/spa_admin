@@ -7,6 +7,8 @@ import 'package:spa_admin/models/service_detail_model.dart';
 import 'package:spa_admin/network/service_management_network.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
+import '../../../dto/update_service_dto.dart';
+
 part 'add_spa_service_state.dart';
 part 'add_spa_service_cubit.freezed.dart';
 
@@ -35,7 +37,7 @@ class AddSpaServiceCubit extends Cubit<AddSpaServiceState> {
     );
   }
 
-  createData(CreateServiceDto data) async {
+  Future<void> createData(CreateServiceDto data) async {
     emit(const AddSpaServiceState.loading());
     // try {
     token = await TokenUtils.getToken() ?? '';
@@ -55,9 +57,27 @@ class AddSpaServiceCubit extends Cubit<AddSpaServiceState> {
         emit(const AddSpaServiceState.success());
       },
     );
-    // } catch (e) {
-    //   // On failure
-    //   emit(AddSpaServiceState.failure(e.toString()));
-    // }
+  }
+
+  Future<void> update(UpdateServiceDto data) async {
+    emit(const AddSpaServiceState.loading());
+    // try {
+    token = await TokenUtils.getToken() ?? '';
+    if (token.isEmpty) {
+      emit(const AddSpaServiceState.unauthorized());
+      return;
+    }
+    final req = await ServiceManagementNetwork().update(token, data);
+    req.fold(
+      (l) {
+        if (l.statusCode == 401) {
+          emit(const AddSpaServiceState.unauthorized());
+        }
+        emit(AddSpaServiceState.failure(l.message));
+      },
+      (r) {
+        emit(const AddSpaServiceState.success());
+      },
+    );
   }
 }

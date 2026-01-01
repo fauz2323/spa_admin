@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spa_admin/dto/edit_service_screen_dto.dart';
 import 'package:spa_admin/screens/management/cubit/spa_service_cubit.dart';
 import 'package:spa_admin/utils/routes.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
@@ -524,8 +525,19 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
                           child: ElevatedButton(
                             onPressed: () {
                               contextParent.push(
-                                AppRoutes.addServiceSpa,
-                                extra: service.id.toString(),
+                                AppRoutes.editServiceSpa,
+                                extra: EditServiceScreenDto(
+                                  id: service.id.toString(),
+                                  backCallback: () async {
+                                    await Future.delayed(
+                                      const Duration(milliseconds: 500),
+                                    );
+                                    context.pop();
+                                    contextParent
+                                        .read<SpaServiceCubit>()
+                                        .initial();
+                                  },
+                                ),
                               );
                             },
                             style: ElevatedButton.styleFrom(
@@ -612,10 +624,9 @@ class _ServiceManagementScreenState extends State<ServiceManagementScreen> {
               leading: const Icon(Icons.edit, color: AppConstants.primaryColor),
               title: const Text('Edit Service'),
               onTap: () {
-                Navigator.pop(context);
                 context.push(
-                  AppRoutes.addServiceSpa,
-                  extra: service.id.toString(),
+                  AppRoutes.editServiceSpa,
+                  extra: EditServiceScreenDto(id: service.id.toString()),
                 );
               },
             ),
