@@ -117,7 +117,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
               ),
               _buildOrdersList(
                 context,
-                data.data.where((order) => order.status == 'booked').toList(),
+                data.data.where((order) => order.status == 'confirmed').toList(),
               ),
               _buildOrdersList(
                 context,
