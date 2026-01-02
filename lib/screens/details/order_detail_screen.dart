@@ -236,13 +236,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           ],
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          // Navigate to user detail
-                          context.push('/user-detail');
-                        },
-                        icon: const Icon(Icons.arrow_forward_ios),
-                      ),
                     ],
                   ),
                 ],
