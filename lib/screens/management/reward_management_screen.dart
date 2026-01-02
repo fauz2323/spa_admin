@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spa_admin/models/history_points_model.dart';
 import 'package:spa_admin/screens/management/cubit/reward_management_cubit.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
-import '../../models/reward_point.dart';
+import '../../dto/qr_scan_dto.dart';
+import '../../utils/routes.dart';
 
 class RewardManagementScreen extends StatefulWidget {
   const RewardManagementScreen({super.key});
@@ -15,6 +19,7 @@ class RewardManagementScreen extends StatefulWidget {
 class _RewardManagementScreenState extends State<RewardManagementScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String? scannedUserEmail;
 
   @override
   void initState() {
@@ -80,7 +85,9 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: _showAddPointsDialog,
+            onPressed: () {
+              _showAddPointsDialog(context);
+            },
           ),
         ],
       ),
@@ -91,6 +98,17 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
               await TokenUtils.deleteAllTokens();
             },
           );
+          if (state is MessageRewardManagementState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: state.success ? Colors.green : Colors.red,
+              ),
+            );
+          }
+        },
+        buildWhen: (prev, current) {
+          return current is! MessageRewardManagementState;
         },
         builder: (context, state) {
           return state.maybeWhen(
@@ -355,14 +373,14 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
     );
   }
 
-  void _showAddPointsDialog() {
+  void _showAddPointsDialog(BuildContext parentContext) {
     final TextEditingController userController = TextEditingController();
     final TextEditingController pointsController = TextEditingController();
     final TextEditingController reasonController = TextEditingController();
     String selectedType = 'earned';
 
     showDialog(
-      context: context,
+      context: parentContext,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
@@ -372,12 +390,51 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextField(
-                      controller: userController,
-                      decoration: const InputDecoration(
-                        labelText: 'User Name',
-                        border: OutlineInputBorder(),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 200,
+                          child: TextField(
+                            controller: userController,
+                            decoration: const InputDecoration(
+                              labelText: 'User Name',
+                              border: OutlineInputBorder(),
+                              enabled: false,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            context.push(
+                              AppRoutes.qrScan,
+                              extra: QRScanDto(
+                                successScanCallback: ({result}) {
+                                  if (result != null) {
+                                    final jsonObj = jsonDecode(result);
+                                    scannedUserEmail = jsonObj['email']
+                                        .toString();
+                                    userController.text = jsonObj['name'];
+                                  }
+                                },
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1976D2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.qr_code,
+                              size: 32,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     TextField(
@@ -437,17 +494,15 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Add the reward point (mock implementation)
                     if (userController.text.isNotEmpty &&
                         pointsController.text.isNotEmpty &&
                         reasonController.text.isNotEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Reward points added successfully!'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
                       Navigator.of(context).pop();
+                      parentContext.read<RewardManagementCubit>().addPoints(
+                        scannedUserEmail,
+                        int.parse(pointsController.text),
+                        reasonController.text,
+                      );
                     }
                   },
                   child: const Text('Add'),
