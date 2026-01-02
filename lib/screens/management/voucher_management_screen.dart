@@ -63,6 +63,14 @@ class VoucherManagementScreen extends StatelessWidget {
               // Handle unauthorized state, e.g., navigate to login
             },
           );
+          if (state is MessageVouchersState) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
+          }
+        },
+        buildWhen: (prev, current) {
+          return current is! MessageVouchersState;
         },
         builder: (context, state) {
           return state.when(

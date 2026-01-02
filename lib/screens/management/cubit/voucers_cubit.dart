@@ -7,6 +7,7 @@ import 'package:spa_admin/network/voucher_network.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
 part 'voucers_state.dart';
+
 part 'voucers_cubit.freezed.dart';
 
 class VoucersCubit extends Cubit<VoucersState> {
@@ -58,10 +59,12 @@ class VoucersCubit extends Cubit<VoucersState> {
       final voucherId = jsonVoucher['id'].toString();
       final userId = jsonVoucher['user_id'].toString();
       final req = await VoucherNetwork().useVoucher(token, voucherId, userId);
+      emit(prevState);
       if (req.statusCode != 200) {
-        emit(VoucersState.error(req.message));
+        emit(MessageVouchersState(req.message));
       } else {
         emit(prevState);
+        emit(const MessageVouchersState('Voucher Berhasil Dipakai!'));
       }
       return req.message;
     } catch (e) {

@@ -8,3 +8,8 @@ class VoucersState with _$VoucersState {
   const factory VoucersState.error(String message) = _Error;
   const factory VoucersState.unauthorized() = _Unauthorized;
 }
+
+class MessageVouchersState implements VoucersState {
+  const MessageVouchersState(this.message);
+  final String message;
+}
