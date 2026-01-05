@@ -72,6 +72,8 @@ class MissionNetwork {
         'description': dto.description,
         'points': dto.points.toString(),
         'goal': dto.goal,
+        'expired_date': dto.expiredDate,
+        'services': dto.serviceList,
       };
     } else {
       uri = Uri.parse('https://rizky-firman.com/api/admin/missions/create');
@@ -80,6 +82,8 @@ class MissionNetwork {
         'description': dto.description,
         'points': dto.points.toString(),
         'goal': dto.goal,
+        'expired_date': dto.expiredDate,
+        'services': dto.serviceList,
       };
     }
 

@@ -6,6 +6,9 @@ import 'package:spa_admin/screens/details/cubit/add_mission_cubit.dart';
 import 'package:spa_admin/utils/routes.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
+import '../../models/service_model.dart';
+import '../management/service_picker_page.dart';
+
 class AddMissionScreen extends StatefulWidget {
   const AddMissionScreen({
     super.key,
@@ -34,6 +37,8 @@ class _AddMissionScreenState extends State<AddMissionScreen> {
   final _descriptionController = TextEditingController();
   final _pointsController = TextEditingController();
   final _goalController = TextEditingController();
+  final _expiredDateController = TextEditingController();
+  String servicePicked = '';
 
   @override
   void dispose() {
@@ -41,6 +46,7 @@ class _AddMissionScreenState extends State<AddMissionScreen> {
     _descriptionController.dispose();
     _pointsController.dispose();
     _goalController.dispose();
+    _expiredDateController.dispose();
     super.dispose();
   }
 
@@ -84,6 +90,8 @@ class _AddMissionScreenState extends State<AddMissionScreen> {
                 _descriptionController.text = data.data.description;
                 _pointsController.text = data.data.points;
                 _goalController.text = data.data.goal.toString();
+                _expiredDateController.text = data.data.expiredDate;
+                servicePicked = data.data.services ?? '';
               },
               unauthorized: () async {
                 await TokenUtils.deleteAllTokens();
@@ -189,45 +197,141 @@ class _AddMissionScreenState extends State<AddMissionScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 24),
 
-            // Submit Button
-            ElevatedButton(
-              onPressed: isLoading
-                  ? null
-                  : () async {
-                      if (_formKey.currentState!.validate()) {
-                        await context.read<AddMissionCubit>().submitMission(
-                          CreateMissionDto(
-                            id: widget.id == 0 ? null : widget.id.toString(),
-                            title: _titleController.text,
-                            description: _descriptionController.text,
-                            points: int.parse(_pointsController.text),
-                            goal: int.parse(_goalController.text),
-                          ),
-                        );
+            const SizedBox(height: 16),
+            _buildSelectExpiredDate(context),
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Mission saved')),
-                        );
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-              ),
-              child: Text(
-                isLoading ? 'Saving...' : 'Save Mission',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+            const SizedBox(height: 16),
+            _buildSelectServicesDate(context),
+
+            if (_shouldDisplaySaveButton()) ...{
+              const SizedBox(height: 24),
+              // Submit Button
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        if (_formKey.currentState!.validate()) {
+                          await context.read<AddMissionCubit>().submitMission(
+                            CreateMissionDto(
+                              id: widget.id == 0 ? null : widget.id.toString(),
+                              title: _titleController.text,
+                              description: _descriptionController.text,
+                              points: int.parse(_pointsController.text),
+                              goal: int.parse(_goalController.text),
+                              expiredDate: _expiredDateController.text,
+                              serviceList: servicePicked,
+                            ),
+                          );
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Mission saved')),
+                          );
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text(
+                  isLoading ? 'Saving...' : 'Save Mission',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
+            },
           ],
         ),
       ),
     );
+  }
+
+  bool _shouldDisplaySaveButton() {
+    return _titleController.text.isNotEmpty &&
+        _descriptionController.text.isNotEmpty &&
+        _pointsController.text.isNotEmpty &&
+        _goalController.text.isNotEmpty &&
+        _expiredDateController.text.isNotEmpty &&
+        servicePicked.isNotEmpty;
+  }
+
+  Widget _buildSelectExpiredDate(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextFormField(
+            controller: _expiredDateController,
+            readOnly: true,
+            decoration: const InputDecoration(
+              labelText: 'Expired Date',
+              hintText: 'Enter Expired Date',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.access_time),
+            ),
+          ),
+        ),
+        const SizedBox(width: 4),
+        IconButton(
+          icon: const Icon(Icons.calendar_today),
+          onPressed: _pickExpiredDate,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _pickExpiredDate() async {
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: _expiredDateController.text.isEmpty
+          ? DateTime.now()
+          : DateTime.parse(_expiredDateController.text),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    ); // [web:22]
+
+    if (selected != null) {
+      _expiredDateController.text =
+          '${selected.year.toString().padLeft(4, '0')}-'
+          '${selected.month.toString().padLeft(2, '0')}-'
+          '${selected.day.toString().padLeft(2, '0')}';
+    }
+    setState(() {});
+  }
+
+  Widget _buildSelectServicesDate(BuildContext context) {
+    final cubit = context.read<AddMissionCubit>();
+
+    return ElevatedButton(
+      onPressed: () => _pickServices(context, cubit.listService),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+      ),
+      child: Text(
+        'Pilih Service',
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  void _pickServices(BuildContext context, List<Service> serviceList) async {
+    final result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ServicePickerPage(
+          serviceList: serviceList,
+          initialPicked: servicePicked,
+        ),
+      ),
+    ); // [web:50][web:53]
+
+    if (result != null && result.isNotEmpty) {
+      servicePicked = result;
+      setState(() {});
+    }
   }
 }

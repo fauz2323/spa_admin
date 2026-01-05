@@ -73,8 +73,8 @@ class MissionManagementScreen extends StatelessWidget {
   }
 
   Widget _buildMissionCard(Datum mission, BuildContext context) {
-    final createdAt = DateTime.parse(mission.createdAt.toString());
-    final formattedDate = DateFormat('dd MMM yyyy, HH:mm').format(createdAt);
+    final expiredAt = DateTime.parse(mission.expiredDate.toString());
+    final formattedDate = DateFormat('yyyy-MM-dd').format(expiredAt);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -143,6 +143,8 @@ class MissionManagementScreen extends StatelessWidget {
                 const Spacer(),
                 Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
                 const SizedBox(width: 4),
+                Text('Expired at : '),
+                const SizedBox(width: 4),
                 Text(
                   formattedDate,
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
@@ -164,9 +166,13 @@ class MissionManagementScreen extends StatelessWidget {
                         points: int.parse(mission.points),
                         goal: mission.goal,
                         id: mission.id.toString(),
+                        expiredDate: DateFormat(
+                          'yyyy-MM-dd',
+                        ).format(mission.expiredDate),
+                        serviceList: mission.services,
                         backCallback: () {
                           context.read<MissionCubit>().initial();
-                        }
+                        },
                       ),
                     );
                   },
@@ -176,9 +182,7 @@ class MissionManagementScreen extends StatelessWidget {
                   icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () async {
                     final cubit = context.read<MissionCubit>();
-                    await cubit.deleteMission(
-                      mission.id.toString(),
-                    );
+                    await cubit.deleteMission(mission.id.toString());
                     cubit.initial();
                   },
                   tooltip: 'Delete',

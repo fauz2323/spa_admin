@@ -4,6 +4,8 @@ class CreateMissionDto {
   final int points;
   final int goal;
   final String? id;
+  final String? expiredDate;
+  final String? serviceList;
   final Function()? backCallback;
 
   CreateMissionDto({
@@ -11,6 +13,8 @@ class CreateMissionDto {
     required this.description,
     required this.points,
     required this.goal,
+    this.expiredDate,
+    this.serviceList,
     this.id,
     this.backCallback,
   });

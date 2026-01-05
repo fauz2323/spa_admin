@@ -5,6 +5,7 @@ import 'package:spa_admin/network/mission_network.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
 part 'mission_state.dart';
+
 part 'mission_cubit.freezed.dart';
 
 class MissionCubit extends Cubit<MissionState> {
@@ -49,4 +50,5 @@ class MissionCubit extends Cubit<MissionState> {
       return e.toString();
     }
   }
+
 }

@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 ListMissionModel listMissionModelFromJson(String str) =>
     ListMissionModel.fromJson(json.decode(str));
 
@@ -41,6 +43,8 @@ class Datum {
   final String description;
   final String points;
   final int goal;
+  final DateTime expiredDate;
+  final String? services;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -50,8 +54,10 @@ class Datum {
     required this.description,
     required this.points,
     required this.goal,
+    required this.expiredDate,
     required this.createdAt,
     required this.updatedAt,
+    this.services,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
@@ -60,8 +66,10 @@ class Datum {
     description: json["description"],
     points: json["points"],
     goal: json["goal"],
+    expiredDate: DateTime.parse(json["expired_date"]),
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
+    services: json["services"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -70,7 +78,9 @@ class Datum {
     "description": description,
     "points": points,
     "goal": goal,
+    "expired_date": DateFormat('yyyy-MM-dd').format(expiredDate),
     "created_at": createdAt.toIso8601String(),
     "updated_at": updatedAt.toIso8601String(),
+    "services": services,
   };
 }

@@ -1,9 +1,13 @@
 import 'package:bloc/bloc.dart';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:spa_admin/dto/create_mission_dto.dart';
 import 'package:spa_admin/models/mission_create_model.dart';
 import 'package:spa_admin/network/mission_network.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
+
+import '../../../models/service_model.dart';
+import '../../../network/service_management_network.dart';
 
 part 'add_mission_state.dart';
 part 'add_mission_cubit.freezed.dart';
@@ -14,9 +18,15 @@ class AddMissionCubit extends Cubit<AddMissionState> {
   late bool isEdit;
   late String idEdit;
 
+
+  List<Service> listService = [];
+
   initial(String id) async {
     emit(const AddMissionState.loading());
     token = await TokenUtils.getToken() ?? '';
+
+    await _fetchServices();
+
     // Simulate data fetching
     if (id == '0') {
       isEdit = false;
@@ -27,6 +37,7 @@ class AddMissionCubit extends Cubit<AddMissionState> {
     }
 
     final req = await MissionNetwork().getMission(token, idEdit);
+
     req.fold(
       (l) {
         if (l.statusCode == 401) {
@@ -55,5 +66,13 @@ class AddMissionCubit extends Cubit<AddMissionState> {
         emit(AddMissionState.loaded(r));
       },
     );
+  }
+
+  Future<void> _fetchServices() async {
+    final req = await ServiceManagementNetwork().getSpaService(token);
+
+    req.fold((l) {}, (r) {
+      listService = r.data.services..sort((a, b) => b.id.compareTo(a.id));
+    });
   }
 }

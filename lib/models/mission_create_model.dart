@@ -42,6 +42,8 @@ class Data {
   final int goal;
   final DateTime updatedAt;
   final DateTime createdAt;
+  final String expiredDate;
+  final String? services;
   final int id;
 
   Data({
@@ -52,6 +54,8 @@ class Data {
     required this.updatedAt,
     required this.createdAt,
     required this.id,
+    required this.expiredDate,
+    this.services,
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
@@ -62,6 +66,8 @@ class Data {
     updatedAt: DateTime.parse(json["updated_at"]),
     createdAt: DateTime.parse(json["created_at"]),
     id: json["id"],
+    expiredDate: json["expired_date"],
+    services: json["services"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -71,6 +77,8 @@ class Data {
     "goal": goal,
     "updated_at": updatedAt.toIso8601String(),
     "created_at": createdAt.toIso8601String(),
+    "expired_date": expiredDate,
+    "services": services,
     "id": id,
   };
 }
