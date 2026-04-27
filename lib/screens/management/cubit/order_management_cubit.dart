@@ -23,7 +23,7 @@ class OrderManagementCubit extends Cubit<OrderManagementState> {
           if (l.statusCode == 401) {
             emit(const OrderManagementState.unauthorized());
           } else {
-            emit(OrderManagementState.error(l.message ?? 'Unknown error'));
+            emit(OrderManagementState.error(l.message));
           }
         },
         (r) {

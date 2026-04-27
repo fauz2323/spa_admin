@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:spa_admin/dto/create_service_dto.dart';
@@ -9,8 +7,8 @@ import 'package:spa_admin/utils/tokien_utils.dart';
 
 import '../../../dto/update_service_dto.dart';
 
-part 'add_spa_service_state.dart';
 part 'add_spa_service_cubit.freezed.dart';
+part 'add_spa_service_state.dart';
 
 class AddSpaServiceCubit extends Cubit<AddSpaServiceState> {
   AddSpaServiceCubit() : super(const AddSpaServiceState.initial());

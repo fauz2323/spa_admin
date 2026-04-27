@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spa_admin/models/user_detail_model.dart';
 import 'package:spa_admin/screens/details/cubit/user_detail_cubit.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
-import '../../models/user.dart';
+
 import '../../models/reward_point.dart';
 
 class UserDetailScreen extends StatefulWidget {

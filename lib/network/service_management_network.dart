@@ -9,6 +9,8 @@ import 'package:spa_admin/models/service_model.dart';
 import 'package:http/http.dart' as http;
 
 import '../dto/update_service_dto.dart';
+import '../models/order_make_model.dart';
+import '../models/time_slot_list_model.dart';
 
 class ServiceManagementNetwork {
   Future<Either<NetworkModel, SpaServiceModel>> getSpaService(
@@ -135,7 +137,9 @@ class ServiceManagementNetwork {
     UpdateServiceDto data,
   ) async {
     final response = await http.post(
-      Uri.parse('https://rizky-firman.com/api/admin/spa-services/${data.id}/update'),
+      Uri.parse(
+        'https://rizky-firman.com/api/admin/spa-services/${data.id}/update',
+      ),
       body: jsonEncode(data.toJson()),
       headers: {
         'Content-Type': 'application/json',
@@ -156,6 +160,75 @@ class ServiceManagementNetwork {
       NetworkModel(
         statusCode: response.statusCode,
         message: jsonData['message'] ?? 'Failed to fetch spa services list',
+      ),
+    );
+  }
+
+  Future<Either<NetworkModel, TimeSlotListModel>> getAvailableTimeSlots(
+    String token,
+    String date,
+  ) async {
+    final response = await http.get(
+      Uri.parse('https://rizky-firman.com/api/admin/timeslot/available/$date'),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    final jsonData = jsonDecode(response.body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final timeSlotListModel = TimeSlotListModel.fromJson(jsonData);
+      return Right(timeSlotListModel);
+    }
+    return Left(
+      NetworkModel(
+        statusCode: response.statusCode,
+        message: jsonData['message'] ?? 'Unknown error',
+      ),
+    );
+  }
+
+  Future<Either<NetworkModel, OrderMakeModel>> createOrder(
+    String token,
+    String id,
+    String timeService,
+    String dateService,
+    String notes,
+  ) async {
+    Map body = {
+      'spa_services_id': id,
+      'time_service': timeService,
+      'date_service': dateService,
+      'notes': notes,
+    };
+
+    final response = await http.post(
+      Uri.parse('https://rizky-firman.com/api/admin/orders/create'),
+      body: body,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    final jsonData = jsonDecode(response.body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final orderMakeModel = OrderMakeModel.fromJson(jsonData);
+      return Right(orderMakeModel);
+    }
+    return Left(
+      NetworkModel(
+        statusCode: response.statusCode,
+        message: jsonData['message'] ?? 'Failed to make order',
       ),
     );
   }

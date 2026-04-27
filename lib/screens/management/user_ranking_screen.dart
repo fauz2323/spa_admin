@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:spa_admin/models/users_points_model.dart';
 import 'package:spa_admin/screens/management/cubit/user_rank_cubit.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
-import '../../models/user.dart';
+
 import '../../utils/routes.dart';
 
 class UserRankingScreen extends StatefulWidget {

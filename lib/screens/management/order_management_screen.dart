@@ -50,6 +50,15 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
           'Order Management',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            onPressed: () {
+              context.push(AppRoutes.addOrderSpa);
+            },
+            tooltip: 'Add Order',
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,

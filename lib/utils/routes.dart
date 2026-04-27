@@ -7,22 +7,28 @@ import 'package:spa_admin/dto/qr_scan_dto.dart';
 import 'package:spa_admin/screens/details/add_mission_screen.dart';
 import 'package:spa_admin/screens/details/add_spa_service_screen.dart';
 import 'package:spa_admin/screens/details/add_voucher_screen.dart';
+import 'package:spa_admin/screens/details/choose_spa_service_screen.dart';
+import 'package:spa_admin/screens/details/choose_user_screen.dart';
 import 'package:spa_admin/screens/management/mission_management_screen.dart';
 import 'package:spa_admin/screens/management/service_management_screen.dart';
 import 'package:spa_admin/screens/management/voucher_management_screen.dart';
 
+import '../../models/user.dart';
+
 // Screens
-import '../screens/auth/splash_screen.dart';
+import '../models/service_model.dart';
 import '../screens/auth/login_screen.dart';
-import '../screens/home/home_screen.dart';
-import '../screens/home/profile_screen.dart';
-import '../screens/management/order_management_screen.dart';
-import '../screens/management/user_management_screen.dart';
-import '../screens/management/reward_management_screen.dart';
-import '../screens/management/user_ranking_screen.dart';
+import '../screens/auth/splash_screen.dart';
+import '../screens/details/add_order_spa_screen.dart';
 import '../screens/details/order_detail_screen.dart';
 import '../screens/details/user_detail_screen.dart';
 import '../screens/home/account_info_screen.dart';
+import '../screens/home/home_screen.dart';
+import '../screens/home/profile_screen.dart';
+import '../screens/management/order_management_screen.dart';
+import '../screens/management/reward_management_screen.dart';
+import '../screens/management/user_management_screen.dart';
+import '../screens/management/user_ranking_screen.dart';
 import '../screens/qr_scan/qr_scanner_screen.dart';
 
 class AppRoutes {
@@ -39,6 +45,9 @@ class AppRoutes {
   static const String accountInfo = '/account-info';
   static const String serviceManagement = '/service-management';
   static const String addServiceSpa = '/add-service-spa';
+  static const String addOrderSpa = '/add-order-spa';
+  static const String chooseSpaService = '/choose-spa-service';
+  static const String chooseUser = '/choose-user';
   static const String editServiceSpa = '/edit-service-spa';
   static const String voucherManagement = '/voucher-management';
   static const String missionManagement = '/mission-management';
@@ -122,6 +131,37 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         final id = state.extra ?? '0';
         return AddSpaServiceScreen(id: id as String);
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.addOrderSpa,
+      name: 'add-order-spa',
+      builder: (context, state) {
+        return AddOrderSpaScreen();
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.chooseSpaService,
+      name: 'choose-spa-service',
+      builder: (context, state) {
+        Function(Service?)? callback = state.extra as Function(Service?)?;
+        return ChooseSpaServiceScreen(
+          backCallback: (service) {
+            callback?.call(service);
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.chooseUser,
+      name: 'choose-user',
+      builder: (context, state) {
+        Function(User?)? callback = state.extra as Function(User?)?;
+        return ChooseUserScreen(
+          onUserSelected: (user) {
+            callback?.call(user);
+          },
+        );
       },
     ),
     GoRoute(

@@ -14,20 +14,20 @@ class User {
     required this.email,
     required this.phone,
     required this.createdAt,
-    required this.rewardPoints,
-    required this.isActive,
-    required this.profileImage,
+    this.isActive = true,
+    this.profileImage = '',
+    this.rewardPoints = 0,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] ?? '',
+      id: json['id']?.toString() ?? '',
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       rewardPoints: json['reward_points'] ?? 0,
-      isActive: json['is_active'] ?? false,
+      isActive: json['is_active'] ?? true,
       profileImage: json['profile_image'] ?? '',
     );
   }

@@ -1,16 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
 import 'package:file_saver/file_saver.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:spa_admin/models/network_model.dart';
 import 'package:spa_admin/models/order_detail_model.dart';
-import 'package:spa_admin/models/service_detail_model.dart';
-import 'package:spa_admin/models/users_list_model.dart';
-import 'package:http/http.dart' as http;
 
 class OrderManagementNetwork {
   Future<Either<NetworkModel, OrderDetailModel>> orderDetail(
