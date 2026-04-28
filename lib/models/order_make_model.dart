@@ -63,7 +63,7 @@ class Data {
   });
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-        userId: json["user_id"],
+        userId: int.parse(json["user_id"].toString()),
         spaServicesId: json["spa_services_id"],
         price: json["price"],
         timeService: json["time_service"],

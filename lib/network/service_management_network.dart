@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:spa_admin/dto/create_service_dto.dart';
 import 'package:spa_admin/models/create_service_model.dart';
 import 'package:spa_admin/models/network_model.dart';
@@ -224,8 +225,12 @@ class ServiceManagementNetwork {
     final jsonData = jsonDecode(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final orderMakeModel = OrderMakeModel.fromJson(jsonData);
-      return Right(orderMakeModel);
+      try {
+        final orderMakeModel = OrderMakeModel.fromJson(jsonData);
+        return Right(orderMakeModel);
+      } catch (e) {
+        debugPrint(e.toString());
+      }
     }
     return Left(
       NetworkModel(

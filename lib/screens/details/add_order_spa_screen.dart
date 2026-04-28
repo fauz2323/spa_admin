@@ -165,7 +165,7 @@ class _AddOrderSpaScreenState extends State<AddOrderSpaScreen> {
           onPressed: _isFormValid
               ? () async {
                   // TODO: Implement Save Logic (Cubit/API call)
-                  await createOrder();
+                  await createOrder(context);
                 }
               : null,
           child: const Text(
@@ -299,7 +299,7 @@ class _AddOrderSpaScreenState extends State<AddOrderSpaScreen> {
     return availableStarts;
   }
 
-  Future<void> createOrder() async {
+  Future<void> createOrder(BuildContext context) async {
     try {
       final orderMakeResponse = await serviceManagementNetwork.createOrder(
         token,
@@ -313,8 +313,9 @@ class _AddOrderSpaScreenState extends State<AddOrderSpaScreen> {
       orderMakeResponse.fold(
         (networkError) {
           if (networkError.statusCode == 401) {
+            debugPrint('401');
           } else {
-
+            debugPrint('else');
           }
         },
         (data) {
@@ -323,6 +324,9 @@ class _AddOrderSpaScreenState extends State<AddOrderSpaScreen> {
             _availableSlots = null;
             _selectedDate = null;
             _selectedService = null;
+            _selectedServiceName = null;
+            _selectedUserName = null;
+            _selectedUserId = null;
           });
           // success create order
           ScaffoldMessenger.of(context).showSnackBar(
