@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:spa_admin/dto/qr_scan_dto.dart';
 import 'package:spa_admin/utils/routes.dart';
 import 'package:spa_admin/models/user.dart';
+
+import '../../network/users_management_network.dart';
+import '../../utils/tokien_utils.dart';
 
 class ChooseUserScreen extends StatefulWidget {
   final Function(User)? onUserSelected;
@@ -18,43 +22,62 @@ class ChooseUserScreen extends StatefulWidget {
 class _ChooseUserScreenState extends State<ChooseUserScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  // Example list - replace with data from your Cubit/API
-  List<User> _allUsers = [
-    User(
-      id: "1",
-      name: "Budi Santoso",
-      email: "user1@gg.com",
-      phone: "08123456789",
-      createdAt: DateTime.now().subtract(const Duration(days: 13)),
-    ),
-    User(
-      id: "2",
-      name: "Siti Aminah",
-      email: "user1@gg.com",
-      phone: "08998765432",
-      createdAt: DateTime.now().subtract(const Duration(days: 23)),
-    ),
-  ];
+  final UsersManagementNetwork _usersManagementNetwork =
+      UsersManagementNetwork();
 
+  // Example list - replace with data from your Cubit/API
+  List<User> _allUsers = [];
   List<User> _filteredUsers = [];
+  String token = '';
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    _filteredUsers = _allUsers;
+    _fetchToken();
     _searchController.addListener(_onSearchChanged);
   }
 
-  void _onSearchChanged() {
-    setState(() {
-      _filteredUsers = _allUsers
-          .where(
-            (user) => user.name.toLowerCase().contains(
-              _searchController.text.toLowerCase(),
-            ),
-          )
-          .toList();
+  Future<void> _fetchToken() async {
+    token = await TokenUtils.getToken() ?? '';
+    await searchUser();
+  }
+
+  void _onSearchChanged() async {
+    // 3. Cancel the timer if the user is still typing
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    // 4. Start a new timer for 2 seconds
+    _debounce = Timer(const Duration(seconds: 2), () async {
+      setState(() {
+        _filteredUsers = _allUsers
+            .where(
+              (user) => user.name.toLowerCase().contains(
+                _searchController.text.toLowerCase(),
+              ),
+            )
+            .toList();
+      });
     });
+  }
+
+  Future<void> searchUser({String keyword = ''}) async {
+    final userListResponse = await _usersManagementNetwork.searchUser(
+      token,
+      keyword,
+    );
+
+    userListResponse.fold(
+      (networkError) {
+        // emit(BookingPageState.error(message: networkError.message));
+      },
+      (userListModel) {
+        setState(() {
+          _allUsers = userListModel.data;
+          _filteredUsers = _allUsers;
+        });
+      },
+    );
   }
 
   @override
@@ -179,6 +202,7 @@ class _ChooseUserScreenState extends State<ChooseUserScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _debounce?.cancel(); // 5. Always cancel the timer on dispose
     super.dispose();
   }
 }

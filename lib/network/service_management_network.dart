@@ -195,12 +195,14 @@ class ServiceManagementNetwork {
 
   Future<Either<NetworkModel, OrderMakeModel>> createOrder(
     String token,
+    String userId,
     String id,
     String timeService,
     String dateService,
     String notes,
   ) async {
     Map body = {
+      'user_id': userId,
       'spa_services_id': id,
       'time_service': timeService,
       'date_service': dateService,

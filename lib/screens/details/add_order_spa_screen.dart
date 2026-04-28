@@ -27,6 +27,7 @@ class _AddOrderSpaScreenState extends State<AddOrderSpaScreen> {
   String? _selectedServiceName;
   Service? _selectedService;
   String? _selectedUserName;
+  String? _selectedUserId;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   List<TimeSlot>? _availableSlots;
@@ -88,6 +89,7 @@ class _AddOrderSpaScreenState extends State<AddOrderSpaScreen> {
                   if (user != null) {
                     setState(() {
                       _selectedUserName = user.name;
+                      _selectedUserId = user.id;
                     });
                   }
                 },
@@ -301,6 +303,7 @@ class _AddOrderSpaScreenState extends State<AddOrderSpaScreen> {
     try {
       final orderMakeResponse = await serviceManagementNetwork.createOrder(
         token,
+        _selectedUserId!,
         _selectedService!.id.toString(),
         _selectedTime!.to24HourString(),
         _selectedDate!.toString().split(' ')[0],

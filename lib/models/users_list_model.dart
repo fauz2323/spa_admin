@@ -21,8 +21,8 @@ class UsersListModel {
   });
 
   factory UsersListModel.fromJson(Map<String, dynamic> json) => UsersListModel(
-    success: json["success"],
-    message: json["message"],
+    success: json["success"] ?? false,
+    message: json["message"] ?? '',
     data: Data.fromJson(json["data"]),
   );
 
@@ -47,6 +47,7 @@ class Data {
 }
 
 class User {
+  final String id;
   final String name;
   final String email;
   final String role;
@@ -55,6 +56,7 @@ class User {
   final Point point;
 
   User({
+    required this.id,
     required this.name,
     required this.email,
     required this.role,
@@ -64,6 +66,7 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
+    id: json["id"] ?? '',
     name: json["name"],
     email: json["email"],
     role: json["role"],
@@ -73,6 +76,7 @@ class User {
   );
 
   Map<String, dynamic> toJson() => {
+    "id": id,
     "name": name,
     "email": email,
     "role": role,
