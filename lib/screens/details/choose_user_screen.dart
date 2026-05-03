@@ -116,21 +116,23 @@ class _ChooseUserScreenState extends State<ChooseUserScreen> {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          const jsonString = '''
-                          {
-                            "id": 18,
-                            "name": "OFFLINE_USER",
-                            "email": "offline_user@gg.com",
-                            "phone": "08220010011",
-                            "role": "customer",
-                            "created_at": "2026-04-21T13:08:24.000000Z"
-                          }
-                          ''';
-                          final offlineUser = User.fromJson(
-                            jsonDecode(jsonString),
-                          );
-                          widget.onUserSelected?.call(offlineUser);
-                          context.pop();
+                          // const jsonString = '''
+                          // {
+                          //   "id": 18,
+                          //   "name": "OFFLINE_USER",
+                          //   "email": "offline_user@gg.com",
+                          //   "phone": "08220010011",
+                          //   "role": "customer",
+                          //   "created_at": "2026-04-21T13:08:24.000000Z"
+                          // }
+                          // ''';
+                          // final offlineUser = User.fromJson(
+                          //   jsonDecode(jsonString),
+                          // );
+                          // widget.onUserSelected?.call(offlineUser);
+                          // context.pop();
+
+                          _showCreateOfflineUserDialog();
                         },
                         icon: const Icon(Icons.cloud_off),
                         label: const Text('User Offline'),
@@ -204,5 +206,91 @@ class _ChooseUserScreenState extends State<ChooseUserScreen> {
     _searchController.dispose();
     _debounce?.cancel(); // 5. Always cancel the timer on dispose
     super.dispose();
+  }
+
+  void _showCreateOfflineUserDialog() {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final phoneController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Input Data User Offline'),
+        content: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(labelText: 'Nama'),
+                  validator: (v) => v!.isEmpty ? 'Nama wajib diisi' : null,
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (v) => v!.isEmpty ? 'Email wajib diisi' : null,
+                ),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(labelText: 'No. Telepon'),
+                  keyboardType: TextInputType.phone,
+                  validator: (v) => v!.isEmpty ? 'Telepon wajib diisi' : null,
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                // Show loading
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) =>
+                      const Center(child: CircularProgressIndicator()),
+                );
+
+                final result = await _usersManagementNetwork.createUser(
+                  token,
+                  nameController.text,
+                  emailController.text,
+                  phoneController.text,
+                );
+
+                if (mounted) {
+                  Navigator.pop(context); // Close Loading
+
+                  result.fold(
+                    (error) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Gagal: ${error.message}')),
+                      );
+                    },
+                    (response) {
+                      // Successfully created
+                      widget.onUserSelected?.call(response.data.user);
+                      Navigator.pop(context); // Close Dialog
+                      context.pop(); // Return to Add Order screen
+                    },
+                  );
+                }
+              }
+            },
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
   }
 }

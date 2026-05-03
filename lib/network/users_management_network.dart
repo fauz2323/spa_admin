@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import 'package:spa_admin/models/users_points_model.dart';
 
+import '../models/create_user_model.dart';
 import '../models/search_users_list_model.dart';
 
 class UsersManagementNetwork {
@@ -121,6 +122,40 @@ class UsersManagementNetwork {
       NetworkModel(
         statusCode: response.statusCode,
         message: jsonData['message'] ?? 'Failed to fetch users points',
+      ),
+    );
+  }
+
+  Future<Either<NetworkModel, CreateUserModel>> createUser(
+    String token,
+    String name,
+    String email,
+    String phone,
+  ) async {
+    Map<String, String> body = {'name': name, 'email': email, 'phone': phone};
+
+    final response = await http.post(
+      Uri.parse('https://rizky-firman.com/api/admin/users/create'),
+      body: body,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    final jsonData = jsonDecode(response.body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final createUserModel = CreateUserModel.fromJson(jsonData);
+      return Right(createUserModel);
+    }
+    return Left(
+      NetworkModel(
+        statusCode: response.statusCode,
+        message: jsonData['message'] ?? 'Failed to create user',
       ),
     );
   }
