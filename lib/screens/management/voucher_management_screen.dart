@@ -168,7 +168,7 @@ class VoucherManagementScreen extends StatelessWidget {
             const SizedBox(height: 8),
             _buildInfoRow(
               Icons.attach_money,
-              'Price',
+              'Points',
               '${_formatCurrency(voucher.price.toString())} Points',
               Colors.blue,
             ),

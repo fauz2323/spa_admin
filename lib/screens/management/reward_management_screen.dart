@@ -1,12 +1,12 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spa_admin/models/history_points_model.dart';
+import 'package:spa_admin/models/history_points_model.dart' hide User;
 import 'package:spa_admin/screens/management/cubit/reward_management_cubit.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
-import '../../dto/qr_scan_dto.dart';
+import 'package:spa_admin/models/user.dart';
+
 import '../../utils/routes.dart';
 
 class RewardManagementScreen extends StatefulWidget {
@@ -181,11 +181,16 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
           child: TabBarView(
             controller: _tabController,
             children: [
-              _buildRewardPointsList(_getFilteredRewardPoints(null, pointData)),
               _buildRewardPointsList(
+                context,
+                _getFilteredRewardPoints(null, pointData),
+              ),
+              _buildRewardPointsList(
+                context,
                 _getFilteredRewardPoints('earned', pointData),
               ),
               _buildRewardPointsList(
+                context,
                 _getFilteredRewardPoints('redeemed', pointData),
               ),
             ],
@@ -231,7 +236,7 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
     );
   }
 
-  Widget _buildRewardPointsList(List<Datum> rewardPoints) {
+  Widget _buildRewardPointsList(BuildContext parentContext, List<Datum> rewardPoints) {
     if (rewardPoints.isEmpty) {
       return const Center(
         child: Column(
@@ -250,8 +255,7 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
 
     return RefreshIndicator(
       onRefresh: () async {
-        await Future.delayed(const Duration(seconds: 1));
-        setState(() {});
+        parentContext.read<RewardManagementCubit>().initial();
       },
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -407,17 +411,13 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
                         GestureDetector(
                           onTap: () {
                             context.push(
-                              AppRoutes.qrScan,
-                              extra: QRScanDto(
-                                successScanCallback: ({result}) {
-                                  if (result != null) {
-                                    final jsonObj = jsonDecode(result);
-                                    scannedUserEmail = jsonObj['email']
-                                        .toString();
-                                    userController.text = jsonObj['name'];
-                                  }
-                                },
-                              ),
+                              AppRoutes.chooseUser,
+                              extra: (User? user) {
+                                if (user != null) {
+                                  scannedUserEmail = user.email;
+                                  userController.text = user.name;
+                                }
+                              },
                             );
                           },
                           child: Container(
@@ -428,7 +428,7 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Icon(
-                              Icons.qr_code,
+                              Icons.search,
                               size: 32,
                               color: Colors.white,
                             ),

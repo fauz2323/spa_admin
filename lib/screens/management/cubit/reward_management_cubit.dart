@@ -14,7 +14,7 @@ class RewardManagementCubit extends Cubit<RewardManagementState> {
   RewardManagementCubit() : super(const RewardManagementState.initial());
   late String token;
 
-  initial() async {
+  Future<void> initial() async {
     emit(const RewardManagementState.loading());
 
     token = await TokenUtils.getToken() ?? '';
@@ -44,7 +44,7 @@ class RewardManagementCubit extends Cubit<RewardManagementState> {
         ),
       );
 
-      emit(prevState);
+      await initial();
       await Future.delayed(const Duration(milliseconds: 500));
       request.fold(
         (l) => emit(
