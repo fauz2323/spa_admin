@@ -30,14 +30,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'Profile',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              context.push(AppRoutes.accountInfo);
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.edit),
+        //     onPressed: () {
+        //       context.push(AppRoutes.accountInfo);
+        //     },
+        //   ),
+        // ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -205,12 +205,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             'Manage registered users',
                             () => context.push(AppRoutes.userManagement),
                           ),
-                          _buildActionTile(
-                            Icons.settings,
-                            'Account Settings',
-                            'Update your account info',
-                            () => context.push(AppRoutes.accountInfo),
-                          ),
+                          // _buildActionTile(
+                          //   Icons.settings,
+                          //   'Account Settings',
+                          //   'Update your account info',
+                          //   () => context.push(AppRoutes.accountInfo),
+                          // ),
                         ],
                       ),
                     ),
@@ -218,90 +218,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Statistics Card
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Your Statistics',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildStatItem(
-                                  'Orders Processed',
-                                  '342',
-                                  Colors.blue,
-                                ),
-                              ),
-                              Expanded(
-                                child: _buildStatItem(
-                                  'Users Managed',
-                                  '1,245',
-                                  Colors.green,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildStatItem(
-                                  'Active Days',
-                                  '127',
-                                  Colors.orange,
-                                ),
-                              ),
-                              Expanded(
-                                child: _buildStatItem(
-                                  'Total Revenue',
-                                  '125M',
-                                  Colors.purple,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
+                  // // Statistics Card
+                  // Card(
+                  //   elevation: 4,
+                  //   shape: RoundedRectangleBorder(
+                  //     borderRadius: BorderRadius.circular(16),
+                  //   ),
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.all(20),
+                  //     child: Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         const Text(
+                  //           'Your Statistics',
+                  //           style: TextStyle(
+                  //             fontSize: 18,
+                  //             fontWeight: FontWeight.bold,
+                  //           ),
+                  //         ),
+                  //         const SizedBox(height: 16),
+                  //         Row(
+                  //           children: [
+                  //             Expanded(
+                  //               child: _buildStatItem(
+                  //                 'Orders Processed',
+                  //                 '342',
+                  //                 Colors.blue,
+                  //               ),
+                  //             ),
+                  //             Expanded(
+                  //               child: _buildStatItem(
+                  //                 'Users Managed',
+                  //                 '1,245',
+                  //                 Colors.green,
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //         const SizedBox(height: 16),
+                  //         Row(
+                  //           children: [
+                  //             Expanded(
+                  //               child: _buildStatItem(
+                  //                 'Active Days',
+                  //                 '127',
+                  //                 Colors.orange,
+                  //               ),
+                  //             ),
+                  //             Expanded(
+                  //               child: _buildStatItem(
+                  //                 'Total Revenue',
+                  //                 '125M',
+                  //                 Colors.purple,
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
+                  //
+                  // const SizedBox(height: 32),
 
                   // Logout Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        _showLogoutDialog(context);
-                      },
-                      icon: const Icon(Icons.logout),
-                      label: const Text(
-                        'Logout',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 48),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          _showLogoutDialog(context);
+                        },
+                        icon: const Icon(Icons.logout),
+                        label: const Text(
+                          'Logout',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade600,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red.shade600,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),

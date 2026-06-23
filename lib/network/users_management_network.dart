@@ -1,4 +1,6 @@
 import 'package:dartz/dartz.dart';
+import 'package:spa_admin/models/detail_history_point_model.dart';
+import 'package:spa_admin/models/history_model.dart';
 import 'package:spa_admin/models/network_model.dart';
 import 'package:spa_admin/models/user_detail_model.dart';
 import 'package:spa_admin/models/users_list_model.dart';
@@ -8,6 +10,7 @@ import 'dart:convert';
 import 'package:spa_admin/models/users_points_model.dart';
 
 import '../models/create_user_model.dart';
+import '../models/leaderboard_model.dart';
 import '../models/search_users_list_model.dart';
 
 class UsersManagementNetwork {
@@ -37,11 +40,11 @@ class UsersManagementNetwork {
     );
   }
 
-  Future<Either<NetworkModel, UsersPointsModel>> usersPoints(
+  Future<Either<NetworkModel, LeaderboardsModel>> usersPoints(
     String token,
   ) async {
     final response = await http.get(
-      Uri.parse('https://rizky-firman.com/api/admin/users/points'),
+      Uri.parse('https://rizky-firman.com/api/admin/users/leaderboards'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'accept': 'application/json',
@@ -54,7 +57,7 @@ class UsersManagementNetwork {
     final jsonData = jsonDecode(response.body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final usersPointsModel = UsersPointsModel.fromJson(jsonData);
+      final usersPointsModel = LeaderboardsModel.fromJson(jsonData);
       return Right(usersPointsModel);
     }
     return Left(
@@ -156,6 +159,70 @@ class UsersManagementNetwork {
       NetworkModel(
         statusCode: response.statusCode,
         message: jsonData['message'] ?? 'Failed to create user',
+      ),
+    );
+  }
+
+  Future<Either<NetworkModel, HistoryModel>> historyOrder(
+      String token,
+      String userid,
+      ) async {
+    Map<String, String> body = {'user_id': userid};
+
+    final response = await http.post(
+      Uri.parse('https://rizky-firman.com/api/admin/users/order'),
+      body: body,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    final jsonData = jsonDecode(response.body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final userHistoryModel = HistoryModel.fromJson(jsonData);
+      return Right(userHistoryModel);
+    }
+    return Left(
+      NetworkModel(
+        statusCode: response.statusCode,
+        message: jsonData['message'] ?? 'Failed to fetch user details',
+      ),
+    );
+  }
+
+  Future<Either<NetworkModel, DetailHistoryPointModel>> historyPoint(
+      String token,
+      String userid,
+      ) async {
+    Map<String, String> body = {'user_id': userid};
+
+    final response = await http.post(
+      Uri.parse('https://rizky-firman.com/api/admin/users/historypoint'),
+      body: body,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    final jsonData = jsonDecode(response.body);
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final userHistoryModel = DetailHistoryPointModel.fromJson(jsonData);
+      return Right(userHistoryModel);
+    }
+    return Left(
+      NetworkModel(
+        statusCode: response.statusCode,
+        message: jsonData['message'] ?? 'Failed to fetch user details',
       ),
     );
   }

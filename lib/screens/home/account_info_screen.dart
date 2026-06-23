@@ -452,91 +452,91 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
               ),
               const SizedBox(height: 20),
 
-              // App Settings Section
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'App Settings',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Settings Options
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blue.shade100,
-                          child: Icon(
-                            Icons.notifications,
-                            color: Colors.blue.shade900,
-                          ),
-                        ),
-                        title: const Text('Notifications'),
-                        subtitle: const Text('Manage notification preferences'),
-                        trailing: Switch(
-                          value: true,
-                          onChanged: (value) {
-                            // Handle notification toggle
-                          },
-                        ),
-                      ),
-                      const Divider(),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.green.shade100,
-                          child: Icon(
-                            Icons.dark_mode,
-                            color: Colors.green.shade900,
-                          ),
-                        ),
-                        title: const Text('Dark Mode'),
-                        subtitle: const Text('Switch to dark theme'),
-                        trailing: Switch(
-                          value: false,
-                          onChanged: (value) {
-                            // Handle dark mode toggle
-                          },
-                        ),
-                      ),
-                      const Divider(),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.purple.shade100,
-                          child: Icon(
-                            Icons.language,
-                            color: Colors.purple.shade900,
-                          ),
-                        ),
-                        title: const Text('Language'),
-                        subtitle: const Text('English (US)'),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {
-                          // Handle language selection
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Language selection coming soon!'),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
+              // // App Settings Section
+              // Card(
+              //   elevation: 4,
+              //   shape: RoundedRectangleBorder(
+              //     borderRadius: BorderRadius.circular(12),
+              //   ),
+              //   child: Padding(
+              //     padding: const EdgeInsets.all(20),
+              //     child: Column(
+              //       crossAxisAlignment: CrossAxisAlignment.start,
+              //       children: [
+              //         const Text(
+              //           'App Settings',
+              //           style: TextStyle(
+              //             fontSize: 18,
+              //             fontWeight: FontWeight.bold,
+              //           ),
+              //         ),
+              //         const SizedBox(height: 16),
+              //
+              //         // Settings Options
+              //         ListTile(
+              //           contentPadding: EdgeInsets.zero,
+              //           leading: CircleAvatar(
+              //             backgroundColor: Colors.blue.shade100,
+              //             child: Icon(
+              //               Icons.notifications,
+              //               color: Colors.blue.shade900,
+              //             ),
+              //           ),
+              //           title: const Text('Notifications'),
+              //           subtitle: const Text('Manage notification preferences'),
+              //           trailing: Switch(
+              //             value: true,
+              //             onChanged: (value) {
+              //               // Handle notification toggle
+              //             },
+              //           ),
+              //         ),
+              //         const Divider(),
+              //         ListTile(
+              //           contentPadding: EdgeInsets.zero,
+              //           leading: CircleAvatar(
+              //             backgroundColor: Colors.green.shade100,
+              //             child: Icon(
+              //               Icons.dark_mode,
+              //               color: Colors.green.shade900,
+              //             ),
+              //           ),
+              //           title: const Text('Dark Mode'),
+              //           subtitle: const Text('Switch to dark theme'),
+              //           trailing: Switch(
+              //             value: false,
+              //             onChanged: (value) {
+              //               // Handle dark mode toggle
+              //             },
+              //           ),
+              //         ),
+              //         const Divider(),
+              //         ListTile(
+              //           contentPadding: EdgeInsets.zero,
+              //           leading: CircleAvatar(
+              //             backgroundColor: Colors.purple.shade100,
+              //             child: Icon(
+              //               Icons.language,
+              //               color: Colors.purple.shade900,
+              //             ),
+              //           ),
+              //           title: const Text('Language'),
+              //           subtitle: const Text('English (US)'),
+              //           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              //           onTap: () {
+              //             // Handle language selection
+              //             ScaffoldMessenger.of(context).showSnackBar(
+              //               const SnackBar(
+              //                 content: Text('Language selection coming soon!'),
+              //               ),
+              //             );
+              //           },
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(height: 32),
             ],
           ),
         ),

@@ -74,7 +74,8 @@ class _AddSpaServiceScreenState extends State<AddSpaServiceScreen> {
               loaded: (data) {
                 _nameController.text = data.data.service.name;
                 _descriptionController.text = data.data.service.description;
-                _priceController.text = data.data.service.price.toString();
+                _priceController.text = (data.data.service.price.toString())
+                    .replaceAll('.00', '');
                 _durationController.text = data.data.service.duration
                     .toString();
                 _imageUrlController.text = data.data.service.image;
@@ -171,7 +172,7 @@ class _AddSpaServiceScreenState extends State<AddSpaServiceScreen> {
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              FilteringTextInputFormatter.allow(RegExp(r'^\d+')),
             ],
             validator: (value) {
               if (value == null || value.isEmpty) {

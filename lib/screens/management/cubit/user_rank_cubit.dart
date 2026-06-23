@@ -1,8 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:spa_admin/models/users_points_model.dart';
 import 'package:spa_admin/network/users_management_network.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
+
+import '../../../models/leaderboard_model.dart';
 
 part 'user_rank_state.dart';
 part 'user_rank_cubit.freezed.dart';

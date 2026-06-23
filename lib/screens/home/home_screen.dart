@@ -326,11 +326,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   'Profile',
                   () => context.push(AppRoutes.profile),
                 ),
-                _buildDrawerItem(
-                  Icons.settings,
-                  'Account Info',
-                  () => context.push(AppRoutes.accountInfo),
-                ),
+                // _buildDrawerItem(
+                //   Icons.settings,
+                //   'Account Info',
+                //   () => context.push(AppRoutes.accountInfo),
+                // ),
                 _buildDrawerItem(
                   Icons.logout,
                   'Logout',

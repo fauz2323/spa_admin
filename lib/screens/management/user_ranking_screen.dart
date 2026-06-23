@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spa_admin/models/users_points_model.dart';
 import 'package:spa_admin/screens/management/cubit/user_rank_cubit.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
 
+import '../../models/leaderboard_model.dart';
 import '../../utils/routes.dart';
 
 class UserRankingScreen extends StatefulWidget {
@@ -71,7 +71,7 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
     );
   }
 
-  Widget _loaded(BuildContext context, UsersPointsModel data) {
+  Widget _loaded(BuildContext context, LeaderboardsModel data) {
     return Column(
       children: [
         // Period Selector and Stats
@@ -212,7 +212,7 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
           Icon(medalIcon, color: color, size: rank == 1 ? 32 : 28),
           const SizedBox(height: 8),
           Text(
-            user.user.name.split(' ').first,
+            user.user.name,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
@@ -274,7 +274,7 @@ class _UserRankingScreenState extends State<UserRankingScreen> {
       ),
       child: InkWell(
         onTap: () {
-          context.push('${AppRoutes.userDetail}/${user.id}');
+          context.push(AppRoutes.userDetail, extra: user.user.email);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

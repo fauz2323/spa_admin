@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:spa_admin/models/detail_history_point_model.dart'
+    as detail_history_point;
+import 'package:spa_admin/models/history_model.dart';
 import 'package:spa_admin/models/user_detail_model.dart';
 import 'package:spa_admin/screens/details/cubit/user_detail_cubit.dart';
 import 'package:spa_admin/utils/tokien_utils.dart';
@@ -83,6 +86,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
   }
 
   Widget _loaded(BuildContext context, UserDetailModel data) {
+    final cubit = context.read<UserDetailCubit>();
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) {
         return [
@@ -112,8 +116,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
         controller: _tabController,
         children: [
           _buildOverviewTab(data.data),
-          _buildOrdersTab(),
-          _buildRewardsTab(),
+          _buildOrdersTab(cubit.historyModel),
+          _buildRewardsTab(cubit.historyPointModel),
         ],
       ),
     );
@@ -222,27 +226,29 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     );
   }
 
-  Widget _buildOrdersTab() {
+  Widget _buildOrdersTab(HistoryModel? historyModel) {
     return RefreshIndicator(
       onRefresh: () async {
         await Future.delayed(const Duration(seconds: 1));
       },
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: 13,
+        itemCount: historyModel?.data.length ?? 0,
         itemBuilder: (context, index) {
-          return _buildOrderCard();
+          return _buildOrderCard(historyModel?.data[index]);
         },
       ),
     );
   }
 
-  Widget _buildRewardsTab() {
+  Widget _buildRewardsTab(
+    detail_history_point.DetailHistoryPointModel? historyPointModel,
+  ) {
     return RefreshIndicator(
       onRefresh: () async {
         await Future.delayed(const Duration(seconds: 1));
       },
-      child: userRewardHistory.isEmpty
+      child: historyPointModel?.data.isEmpty ?? true
           ? const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -258,9 +264,9 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: userRewardHistory.length,
+              itemCount: historyPointModel?.data.length ?? 0,
               itemBuilder: (context, index) {
-                final reward = userRewardHistory[index];
+                final reward = historyPointModel?.data[index];
                 return _buildRewardCard(reward);
               },
             ),
@@ -326,7 +332,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     );
   }
 
-  Widget _buildOrderCard() {
+  Widget _buildOrderCard(Datum? data) {
     Color statusColor = _getStatusColor('completed');
 
     return Card(
@@ -341,8 +347,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Order #17',
+                Text(
+                  'Order #${data?.id}',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Container(
@@ -367,8 +373,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               ],
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Service Name',
+            Text(
+              data?.spaService.name ?? 'Unknown Service',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
@@ -380,7 +386,7 @@ class _UserDetailScreenState extends State<UserDetailScreen>
                   style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
                 Text(
-                  'Rp ${_formatCurrency(100000)}',
+                  'Rp ${_formatCurrency(double.tryParse(data?.spaService.price ?? '0') ?? 0)}',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -395,8 +401,8 @@ class _UserDetailScreenState extends State<UserDetailScreen>
     );
   }
 
-  Widget _buildRewardCard(RewardPoint reward) {
-    final isEarned = reward.type == 'earned';
+  Widget _buildRewardCard(detail_history_point.Datum? reward) {
+    final isEarned = (reward?.points ?? 0) > 0;
     final color = isEarned ? Colors.green : Colors.red;
     final icon = isEarned ? Icons.add_circle : Icons.remove_circle;
 
@@ -418,29 +424,27 @@ class _UserDetailScreenState extends State<UserDetailScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        reward.reason,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        '${isEarned ? '+' : ''}${reward.points} pts',
-                        style: TextStyle(
-                          color: color,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    reward?.description ?? '',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _formatDateTime(reward.createdAt),
+                    '${isEarned ? '+' : ''}${reward?.points ?? 0} pts',
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    reward?.createdAt != null
+                        ? _formatDateTime(reward!.createdAt)
+                        : '',
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                   ),
                 ],

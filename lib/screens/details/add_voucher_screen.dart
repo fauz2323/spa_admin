@@ -133,15 +133,15 @@ class _AddVoucherScreenState extends State<AddVoucherScreen> {
           TextFormField(
             controller: _priceController,
             decoration: const InputDecoration(
-              labelText: 'Harga *',
-              hintText: 'Masukkan harga',
+              labelText: 'Points *',
+              hintText: 'Masukkan Point',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.attach_money),
-              prefixText: 'Rp ',
+              prefixText: '',
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              FilteringTextInputFormatter.allow(RegExp(r'^\d+')),
             ],
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -167,7 +167,7 @@ class _AddVoucherScreenState extends State<AddVoucherScreen> {
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+              FilteringTextInputFormatter.allow(RegExp(r'^\d+')),
             ],
             validator: (value) {
               if (value == null || value.isEmpty) {
