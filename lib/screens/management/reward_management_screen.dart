@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -236,7 +235,10 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
     );
   }
 
-  Widget _buildRewardPointsList(BuildContext parentContext, List<Datum> rewardPoints) {
+  Widget _buildRewardPointsList(
+    BuildContext parentContext,
+    List<Datum> rewardPoints,
+  ) {
     if (rewardPoints.isEmpty) {
       return const Center(
         child: Column(
@@ -500,7 +502,8 @@ class _RewardManagementScreenState extends State<RewardManagementScreen>
                       Navigator.of(context).pop();
                       parentContext.read<RewardManagementCubit>().addPoints(
                         scannedUserEmail,
-                        int.parse(pointsController.text),
+                        (selectedType == 'earned' ? 1 : -1) *
+                            int.parse(pointsController.text),
                         reasonController.text,
                       );
                     }
