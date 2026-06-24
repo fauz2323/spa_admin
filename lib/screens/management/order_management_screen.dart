@@ -23,7 +23,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
   }
 
   @override
@@ -71,6 +71,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
             Tab(text: 'Booked'),
             Tab(text: 'In Progress'),
             Tab(text: 'Completed'),
+            Tab(text: 'Cancelled'),
           ],
         ),
       ),
@@ -138,6 +139,12 @@ class _OrderManagementScreenState extends State<OrderManagementScreen>
                 context,
                 data.data
                     .where((order) => order.status == 'completed')
+                    .toList(),
+              ),
+              _buildOrdersList(
+                context,
+                data.data
+                    .where((order) => order.status == 'cancelled')
                     .toList(),
               ),
             ],
